@@ -68,9 +68,26 @@ export const mockGrades = [
 
 // Mock data for events
 export const mockEvents = [
-  { id: '1', title: 'Midterm Exams', date: '2024-04-15', description: 'Midterm examination period' },
-  { id: '2', title: 'Academic Seminar', date: '2024-04-20', description: 'Computing seminar by guest speaker' },
-  { id: '3', title: 'Final Exams', date: '2024-05-20', description: 'Final examination period' },
+  { id: '1', title: 'Midterm Exams', date: '2024-04-15', description: 'Midterm examination period', type: 'school' },
+  { id: '2', title: 'Academic Seminar', date: '2024-04-20', description: 'Computing seminar by guest speaker', type: 'department' },
+  { id: '3', title: 'Final Exams', date: '2024-05-20', description: 'Final examination period', type: 'school' },
+  { id: '4', title: 'Department Meeting', date: '2024-04-25', description: 'Monthly department meeting', type: 'department' },
+  { id: '5', title: 'School Fair', date: '2024-05-10', description: 'Annual school fair event', type: 'school' },
+];
+
+// Mock data for announcements
+export const mockAnnouncements = [
+  { id: '1', title: 'New Library Hours', content: 'The library will be open extended hours during exam week.', date: '2024-04-10', admin: 'Admin' },
+  { id: '2', title: 'Registration Deadline', content: 'Course registration for next semester ends on April 30th.', date: '2024-04-12', admin: 'Admin' },
+  { id: '3', title: 'Campus Maintenance', content: 'Building A will be under maintenance from April 15-17.', date: '2024-04-14', admin: 'Admin' },
+];
+
+// Mock data for upcoming activities
+export const mockActivities = [
+  { id: '1', type: 'exam', title: 'CS101 Midterm Exam', date: '2024-04-15', time: '10:00 AM', course: 'CS101' },
+  { id: '2', type: 'quiz', title: 'Data Structures Quiz', date: '2024-04-18', time: '2:00 PM', course: 'CS102' },
+  { id: '3', type: 'deadline', title: 'Project Submission', date: '2024-04-22', time: '11:59 PM', course: 'CS201' },
+  { id: '4', type: 'exam', title: 'Database Systems Final', date: '2024-05-20', time: '9:00 AM', course: 'CS201' },
 ];
 
 // Mock data for research
