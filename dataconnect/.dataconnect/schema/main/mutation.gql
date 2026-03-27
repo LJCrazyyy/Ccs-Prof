@@ -1,0 +1,542 @@
+extend type Mutation {
+  """
+  ✨ Insert a single `Assignment` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  assignment_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Assignment_Data!
+  ): Assignment_KeyOutput! @fdc_generated(from: "Assignment", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `Category` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  category_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Category_Data!
+  ): Category_KeyOutput! @fdc_generated(from: "Category", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `ItemCategory` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  itemCategory_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: ItemCategory_Data!
+  ): ItemCategory_KeyOutput! @fdc_generated(from: "ItemCategory", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `ManagedItem` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  managedItem_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: ManagedItem_Data!
+  ): ManagedItem_KeyOutput! @fdc_generated(from: "ManagedItem", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `User` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  user_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: User_Data!
+  ): User_KeyOutput! @fdc_generated(from: "User", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert `Assignment` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  assignment_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Assignment_Data!]!
+  ): [Assignment_KeyOutput!]! @fdc_generated(from: "Assignment", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Category` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  category_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Category_Data!]!
+  ): [Category_KeyOutput!]! @fdc_generated(from: "Category", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `ItemCategory` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  itemCategory_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [ItemCategory_Data!]!
+  ): [ItemCategory_KeyOutput!]! @fdc_generated(from: "ItemCategory", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `ManagedItem` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  managedItem_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [ManagedItem_Data!]!
+  ): [ManagedItem_KeyOutput!]! @fdc_generated(from: "ManagedItem", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `User` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  user_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [User_Data!]!
+  ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert or update a single `Assignment` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Assignment`.
+  """
+  assignment_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Assignment_Data!
+  ): Assignment_KeyOutput! @fdc_generated(from: "Assignment", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `Category` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Category`.
+  """
+  category_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Category_Data!
+  ): Category_KeyOutput! @fdc_generated(from: "Category", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `ItemCategory` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ItemCategory`.
+  """
+  itemCategory_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: ItemCategory_Data!
+  ): ItemCategory_KeyOutput! @fdc_generated(from: "ItemCategory", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `ManagedItem` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ManagedItem`.
+  """
+  managedItem_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: ManagedItem_Data!
+  ): ManagedItem_KeyOutput! @fdc_generated(from: "ManagedItem", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `User` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `User`.
+  """
+  user_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: User_Data!
+  ): User_KeyOutput! @fdc_generated(from: "User", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update `Assignment` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Assignment`.
+  """
+  assignment_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Assignment_Data!]!
+  ): [Assignment_KeyOutput!]! @fdc_generated(from: "Assignment", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Category` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Category`.
+  """
+  category_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Category_Data!]!
+  ): [Category_KeyOutput!]! @fdc_generated(from: "Category", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `ItemCategory` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ItemCategory`.
+  """
+  itemCategory_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [ItemCategory_Data!]!
+  ): [ItemCategory_KeyOutput!]! @fdc_generated(from: "ItemCategory", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `ManagedItem` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ManagedItem`.
+  """
+  managedItem_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [ManagedItem_Data!]!
+  ): [ManagedItem_KeyOutput!]! @fdc_generated(from: "ManagedItem", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `User` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `User`.
+  """
+  user_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [User_Data!]!
+  ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Update a single `Assignment` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Assignment` or `null` if not found.
+  """
+  assignment_update(
+    """
+    The key used to identify the object.
+    """
+    key: Assignment_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Assignment_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Assignment_Data!
+  ): Assignment_KeyOutput @fdc_generated(from: "Assignment", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Category` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Category` or `null` if not found.
+  """
+  category_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Category_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Category_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Category_Data!
+  ): Category_KeyOutput @fdc_generated(from: "Category", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `ItemCategory` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `ItemCategory` or `null` if not found.
+  """
+  itemCategory_update(
+    """
+    The key used to identify the object.
+    """
+    key: ItemCategory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ItemCategory_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: ItemCategory_Data!
+  ): ItemCategory_KeyOutput @fdc_generated(from: "ItemCategory", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `ManagedItem` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `ManagedItem` or `null` if not found.
+  """
+  managedItem_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ManagedItem_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ManagedItem_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: ManagedItem_Data!
+  ): ManagedItem_KeyOutput @fdc_generated(from: "ManagedItem", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `User` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `User` or `null` if not found.
+  """
+  user_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: User_Data!
+  ): User_KeyOutput @fdc_generated(from: "User", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update `Assignment` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  assignment_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Assignment_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Assignment_Data!
+  ): Int! @fdc_generated(from: "Assignment", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `Category` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  category_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Category_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Category_Data!
+  ): Int! @fdc_generated(from: "Category", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `ItemCategory` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  itemCategory_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: ItemCategory_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: ItemCategory_Data!
+  ): Int! @fdc_generated(from: "ItemCategory", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `ManagedItem` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  managedItem_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: ManagedItem_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: ManagedItem_Data!
+  ): Int! @fdc_generated(from: "ManagedItem", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `User` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  user_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: User_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: User_Data!
+  ): Int! @fdc_generated(from: "User", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Delete a single `Assignment` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  assignment_delete(
+    """
+    The key used to identify the object.
+    """
+    key: Assignment_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Assignment_FirstRow
+  ): Assignment_KeyOutput @fdc_generated(from: "Assignment", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `Category` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  category_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Category_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Category_FirstRow
+  ): Category_KeyOutput @fdc_generated(from: "Category", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `ItemCategory` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  itemCategory_delete(
+    """
+    The key used to identify the object.
+    """
+    key: ItemCategory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ItemCategory_FirstRow
+  ): ItemCategory_KeyOutput @fdc_generated(from: "ItemCategory", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `ManagedItem` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  managedItem_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ManagedItem_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ManagedItem_FirstRow
+  ): ManagedItem_KeyOutput @fdc_generated(from: "ManagedItem", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `User` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  user_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+  ): User_KeyOutput @fdc_generated(from: "User", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete `Assignment` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  assignment_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Assignment_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Assignment", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Category` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  category_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Category_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Category", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `ItemCategory` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  itemCategory_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: ItemCategory_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "ItemCategory", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `ManagedItem` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  managedItem_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: ManagedItem_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "ManagedItem", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `User` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  user_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: User_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "User", purpose: DELETE_MULTIPLE)
+}

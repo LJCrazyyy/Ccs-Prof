@@ -1,0 +1,38 @@
+type User @table {
+  username: String!
+  createdAt: Timestamp!
+  email: String
+  fullName: String
+  profilePictureUrl: String
+}
+
+type ManagedItem @table {
+  owner: User
+  name: String!
+  createdAt: Timestamp!
+  itemType: String!
+  description: String
+  status: String
+  dueDate: Date
+}
+
+type Category @table {
+  owner: User
+  name: String!
+  createdAt: Timestamp!
+  description: String
+}
+
+type ItemCategory @table(key: ["managedItem", "category"]) {
+  managedItem: ManagedItem!
+  category: Category!
+  assignedAt: Timestamp!
+}
+
+type Assignment @table(key: ["managedItem", "assignedTo"]) {
+  managedItem: ManagedItem!
+  assignedTo: User!
+  assignedAt: Timestamp!
+  notes: String
+  deadline: Date
+}

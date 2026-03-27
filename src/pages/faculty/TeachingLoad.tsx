@@ -3,7 +3,7 @@ import { mockClasses } from '../../lib/constants';
 import { Briefcase } from 'lucide-react';
 
 export const FacultyTeachingLoad: React.FC = () => {
-  const totalHours = mockClasses.reduce((sum, c) => sum + 3, 0);
+  const totalHours = mockClasses.length * 3;
 
   return (
     <div>

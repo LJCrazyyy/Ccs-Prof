@@ -1,0 +1,47 @@
+mutation CreateDemoData @transaction @auth(level: USER, insecureReason: "Seed data is created by an authenticated user.") {
+  user1: user_insert(data: {
+    id: "550e8400-e29b-41d4-a716-446655440000",
+    username: "alice_smith",
+    email: "alice.smith@example.com",
+    fullName: "Alice Smith",
+    profilePictureUrl: "https://example.com/alice.jpg",
+    createdAt: "2023-01-01T10:00:00Z"
+  })
+  user2: user_insert(data: {
+    id: "550e8400-e29b-41d4-a716-446655440001",
+    username: "bob_jones",
+    email: "bob.jones@example.com",
+    fullName: "Bob Jones",
+    profilePictureUrl: "https://example.com/bob.jpg",
+    createdAt: "2023-01-02T11:00:00Z"
+  })
+  category1: category_insert(data: {
+    id: "550e8400-e29b-41d4-a716-446655440002",
+    ownerId: "550e8400-e29b-41d4-a716-446655440000",
+    name: "Work Tasks",
+    description: "Tasks related to professional projects.",
+    createdAt: "2023-01-03T09:00:00Z"
+  })
+  managedItem1: managedItem_insert(data: {
+    id: "550e8400-e29b-41d4-a716-446655440003",
+    ownerId: "550e8400-e29b-41d4-a716-446655440000",
+    name: "Project Alpha Documentation",
+    itemType: "Document",
+    description: "Prepare project documentation for client review.",
+    status: "Pending",
+    dueDate: "2023-01-15",
+    createdAt: "2023-01-04T13:00:00Z"
+  })
+  assignment1: assignment_insert(data: {
+    managedItemId: "550e8400-e29b-41d4-a716-446655440003",
+    assignedToId: "550e8400-e29b-41d4-a716-446655440000",
+    assignedAt: "2023-01-05T09:00:00Z",
+    deadline: "2023-01-14",
+    notes: "Focus on clarity and conciseness."
+  })
+  itemCategory1: itemCategory_insert(data: {
+    managedItemId: "550e8400-e29b-41d4-a716-446655440003",
+    categoryId: "550e8400-e29b-41d4-a716-446655440002",
+    assignedAt: "2023-01-05T10:00:00Z"
+  })
+}

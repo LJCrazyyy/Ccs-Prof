@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Save, Edit, Camera, X, GraduationCap, MapPin, Mail, Phone, Code, User, Briefcase, Globe } from 'lucide-react';
+import { Edit, Camera, X, GraduationCap, Mail, User, Globe, Code, Briefcase } from 'lucide-react';
 
 export const StudentProfile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);

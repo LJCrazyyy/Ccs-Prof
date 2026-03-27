@@ -1,21 +1,54 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Users, BarChart3, BookOpen, FileText } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { useAsync } from '../../hooks/useAsync';
+import { coursesDB } from '../../lib/database';
+import { ErrorMessage, EmptyState } from '../../components/ui/shared';
 import { mockClasses } from '../../lib/constants';
 
+interface Course {
+  id: string;
+  code: string;
+  name: string;
+  semester: string;
+  section?: string;
+  students?: number;
+  schedule?: string;
+}
+
 export const FacultyDashboard: React.FC = () => {
+  const { user } = useAuth();
+
+  const { data: classes, error, execute: fetchClasses } = useAsync<Course[]>(() =>
+    coursesDB.getAllCourses().then((data: any) => (data as Course[])).catch(() => mockClasses as Course[])
+  );
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchClasses();
+    }
+  }, [user?.id, fetchClasses]);
+
+  const totalStudents = classes?.reduce((sum, c) => sum + (c.students || 0), 0) || 0;
+  const courseCount = classes?.length || 0;
+  const courseMaterials = 12; // TODO: Fetch from materials collection
+  const researchPapers = 5; // TODO: Fetch from research collection
+
   const stats = [
-    { label: 'Classes Teaching', value: mockClasses.length, icon: Users, color: 'bg-blue-500' },
-    { label: 'Total Students', value: mockClasses.reduce((sum, c) => sum + c.students, 0), icon: BarChart3, color: 'bg-green-500' },
-    { label: 'Course Materials', value: 12, icon: BookOpen, color: 'bg-purple-500' },
-    { label: 'Research Papers', value: 5, icon: FileText, color: 'bg-orange-500' },
+    { label: 'Classes Teaching', value: courseCount, icon: Users, color: 'bg-blue-500' },
+    { label: 'Total Students', value: totalStudents, icon: BarChart3, color: 'bg-green-500' },
+    { label: 'Course Materials', value: courseMaterials, icon: BookOpen, color: 'bg-purple-500' },
+    { label: 'Research Papers', value: researchPapers, icon: FileText, color: 'bg-orange-500' },
   ];
 
   return (
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Faculty Dashboard</h1>
-        <p className="text-gray-600 mt-2">Welcome to your teaching portal</p>
+        <p className="text-gray-600 mt-2">Welcome {user?.name}! Here's your teaching portal</p>
       </div>
+
+      {error && <ErrorMessage message="Failed to load classes. Using fallback data." />}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat) => {
@@ -38,17 +71,29 @@ export const FacultyDashboard: React.FC = () => {
 
       <div className="card">
         <h2 className="text-xl font-bold text-gray-800 mb-4">My Classes</h2>
-        <div className="space-y-3">
-          {mockClasses.map((cls) => (
-            <div key={cls.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
-              <div>
-                <p className="font-semibold text-gray-800">{cls.code} - {cls.name}</p>
-                <p className="text-sm text-gray-600">Section {cls.section} • {cls.students} students</p>
+        {!classes || classes.length === 0 ? (
+          <EmptyState
+            icon="BookOpen"
+            title="No classes assigned"
+            description="You don't have any classes assigned yet"
+          />
+        ) : (
+          <div className="space-y-3">
+            {classes.map((cls) => (
+              <div key={cls.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                <div>
+                  <p className="font-semibold text-gray-800">{cls.code} - {cls.name}</p>
+                  <p className="text-sm text-gray-600">
+                    {cls.section ? `Section ${cls.section}` : 'Section 1'} • {cls.students || 0} students
+                  </p>
+                </div>
+                <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+                  {cls.schedule || cls.semester}
+                </span>
               </div>
-              <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">{cls.schedule}</span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

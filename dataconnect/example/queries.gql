@@ -1,0 +1,66 @@
+query ListManagedItemsForCurrentUser @auth(level: USER, insecureReason: "This query lists items owned by the current user, relying on auth.uid for filtering.") {
+  managedItems(where: {ownerId: {eq_expr: "auth.uid"}}) {
+    id
+    name
+    description
+    status
+    dueDate
+    itemType
+    createdAt
+    owner {
+      username
+      email
+    }
+    categories_via_ItemCategory {
+      name
+    }
+    assignments_on_managedItem {
+      assignedTo {
+        username
+      }
+      deadline
+    }
+  }
+}
+
+mutation CreateNewManagedItem($name: String!, $description: String, $itemType: String!) @auth(level: USER, insecureReason: "This mutation allows any authenticated user to create a new managed item, with their UID automatically assigned as owner.") {
+  managedItem_insert(data: {
+    name: $name,
+    description: $description,
+    itemType: $itemType,
+    ownerId_expr: "auth.uid"
+    createdAt_expr: "request.time"
+  }) {
+    id
+  }
+}
+
+query GetCategoryDetails($categoryId: UUID!) @auth(level: PUBLIC, insecureReason: "This operation provides details about a category, which is public information.") {
+  category(id: $categoryId) {
+    id
+    name
+    description
+    createdAt
+    owner {
+      username
+    }
+    managedItems_via_ItemCategory {
+      id
+      name
+      itemType
+    }
+  }
+}
+
+mutation AssignManagedItemToUser($managedItemId: UUID!, $assignedToId: UUID!, $notes: String, $deadline: Date) @auth(level: USER, insecureReason: "This mutation allows an authenticated user to assign a managed item to another user.") {
+  assignment_insert(data: {
+    managedItemId: $managedItemId,
+    assignedToId: $assignedToId,
+    assignedAt_expr: "request.time",
+    notes: $notes,
+    deadline: $deadline
+  }) {
+    managedItemId
+    assignedToId
+  }
+}

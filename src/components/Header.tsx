@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Menu } from 'lucide-react';
+import { LogOut, Menu, Loader } from 'lucide-react';
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -10,10 +10,20 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      await logout();
+      navigate('/');
+    } catch (err) {
+      console.error('Logout error:', err);
+      // Even if there's an error, navigate to login
+      navigate('/');
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -55,10 +65,15 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
         </div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+          disabled={isLoggingOut}
+          className="flex items-center gap-2 bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg transition"
         >
-          <LogOut size={18} />
-          <span className="hidden sm:inline">Logout</span>
+          {isLoggingOut ? (
+            <Loader size={18} className="animate-spin" />
+          ) : (
+            <LogOut size={18} />
+          )}
+          <span className="hidden sm:inline">{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
         </button>
       </div>
     </header>

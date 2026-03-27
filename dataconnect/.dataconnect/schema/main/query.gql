@@ -1,0 +1,257 @@
+extend type Query {
+  """
+  ✨ Look up a single `Assignment` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  assignment(
+    """
+    The key used to identify the object.
+    """
+    key: Assignment_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Assignment_FirstRow
+  ): Assignment @fdc_generated(from: "Assignment", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Category` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  category(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Category_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Category_FirstRow
+  ): Category @fdc_generated(from: "Category", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `ItemCategory` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  itemCategory(
+    """
+    The key used to identify the object.
+    """
+    key: ItemCategory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ItemCategory_FirstRow
+  ): ItemCategory @fdc_generated(from: "ItemCategory", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `ManagedItem` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  managedItem(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ManagedItem_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ManagedItem_FirstRow
+  ): ManagedItem @fdc_generated(from: "ManagedItem", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `User` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  user(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+  ): User @fdc_generated(from: "User", purpose: QUERY_SINGLE)
+  """
+  ✨ List `Assignment` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  assignments(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Assignment_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Assignment_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Assignment_Having
+  ): [Assignment!]! @fdc_generated(from: "Assignment", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Category` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  categories(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Category_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Category_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Category_Having
+  ): [Category!]! @fdc_generated(from: "Category", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `ItemCategory` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  itemCategories(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ItemCategory_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ItemCategory_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ItemCategory_Having
+  ): [ItemCategory!]! @fdc_generated(from: "ItemCategory", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `ManagedItem` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  managedItems(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ManagedItem_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ManagedItem_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ManagedItem_Having
+  ): [ManagedItem!]! @fdc_generated(from: "ManagedItem", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `User` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  users(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: User_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [User_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: User_Having
+  ): [User!]! @fdc_generated(from: "User", purpose: QUERY_MULTIPLE)
+}

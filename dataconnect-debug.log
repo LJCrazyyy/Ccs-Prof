@@ -1,0 +1,57 @@
+I0325 21:32:32.385701   17172 load.go:31] Reloading schema and connectors...
+W0325 21:32:32.493089   17172 control.go:74] [projects/emulator/locations/emulator/services/itew6-project 6707] connector "example" has errors: example\queries.gql:34:5: Cannot query field "id" on type "ManagedItem_KeyOutput".
+example\queries.gql:27:3: Field "managedItem_insert" must not have a selection since type "ManagedItem_KeyOutput" has no subfields.
+example\queries.gql:63:5: Cannot query field "managedItemId" on type "Assignment_KeyOutput".
+example\queries.gql:64:5: Cannot query field "assignedToId" on type "Assignment_KeyOutput".
+example\queries.gql:56:3: Field "assignment_insert" must not have a selection since type "Assignment_KeyOutput" has no subfields.
+
+sources: example\queries.gql [1758B] 
+I0325 21:32:32.493089   17172 control.go:100] [projects/emulator/locations/emulator/services/itew6-project 6707] UpdateResources(): done
+Main schema: sources: schema\schema.gql [696B] 
+Connector "example": sources: example\queries.gql [1758B] 
+E0325 21:32:32.495122   17172 load.go:73] Could not load sources: 
+Errors: example\queries.gql:34:5: Cannot query field "id" on type "ManagedItem_KeyOutput".
+example\queries.gql:27:3: Field "managedItem_insert" must not have a selection since type "ManagedItem_KeyOutput" has no subfields.
+example\queries.gql:63:5: Cannot query field "managedItemId" on type "Assignment_KeyOutput".
+example\queries.gql:64:5: Cannot query field "assignedToId" on type "Assignment_KeyOutput".
+example\queries.gql:56:3: Field "assignment_insert" must not have a selection since type "Assignment_KeyOutput" has no subfields.
+I0325 21:32:32.503463   17172 collector.go:107] schema extensions wrote into "C:\\Users\\Lyra Jamaica Vergara\\Documents\\ITEW 6 PROJECT\\ITEW6-Project\\dataconnect\\.dataconnect\\schema"
+Generated sources: main\relation.gql [23885B] main\query.gql [6303B] main\mutation.gql [17148B] prelude.gql [80888B] main\implicit.gql [2359B] main\input.gql [45096B] 
+I0325 21:32:32.503463   17172 load.go:74] Finished reloading
+I0325 21:32:32.506804   17172 dev.go:104] Listening on address (HTTP + gRPC): 127.0.0.1:9399
+I0325 21:32:32.506804   17172 dev.go:104] Listening on address (HTTP + gRPC): [::1]:9399
+I0325 21:32:41.377545   17172 migrate.go:24] Running migration SQL:
+Step 1: CREATE EXTENSION IF NOT EXISTS "uuid-ossp"
+Step 2: CREATE TABLE "public"."user" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" timestamptz NOT NULL, "email" text NULL, "full_name" text NULL, "profile_picture_url" text NULL, "username" text NOT NULL, PRIMARY KEY ("id"))
+Step 3: CREATE TABLE "public"."managed_item" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "owner_id" uuid NULL, "created_at" timestamptz NOT NULL, "description" text NULL, "due_date" date NULL, "item_type" text NOT NULL, "name" text NOT NULL, "status" text NULL, PRIMARY KEY ("id"), CONSTRAINT "managed_item_owner_id_fkey" FOREIGN KEY ("owner_id") REFERENCES "public"."user" ("id") ON DELETE SET NULL)
+Step 4: CREATE INDEX "managed_item_ownerId_idx" ON "public"."managed_item" ("owner_id")
+Step 5: CREATE TABLE "public"."assignment" ("managed_item_id" uuid NOT NULL, "assigned_to_id" uuid NOT NULL, "assigned_at" timestamptz NOT NULL, "deadline" date NULL, "notes" text NULL, PRIMARY KEY ("managed_item_id", "assigned_to_id"), CONSTRAINT "assignment_assigned_to_id_fkey" FOREIGN KEY ("assigned_to_id") REFERENCES "public"."user" ("id") ON DELETE CASCADE, CONSTRAINT "assignment_managed_item_id_fkey" FOREIGN KEY ("managed_item_id") REFERENCES "public"."managed_item" ("id") ON DELETE CASCADE)
+Step 6: CREATE INDEX "assignment_assignedToId_idx" ON "public"."assignment" ("assigned_to_id")
+Step 7: CREATE INDEX "assignment_managedItemId_idx" ON "public"."assignment" ("managed_item_id")
+Step 8: CREATE TABLE "public"."category" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "owner_id" uuid NULL, "created_at" timestamptz NOT NULL, "description" text NULL, "name" text NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "category_owner_id_fkey" FOREIGN KEY ("owner_id") REFERENCES "public"."user" ("id") ON DELETE SET NULL)
+Step 9: CREATE INDEX "category_ownerId_idx" ON "public"."category" ("owner_id")
+Step 10: CREATE TABLE "public"."item_category" ("managed_item_id" uuid NOT NULL, "category_id" uuid NOT NULL, "assigned_at" timestamptz NOT NULL, PRIMARY KEY ("managed_item_id", "category_id"), CONSTRAINT "item_category_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "public"."category" ("id") ON DELETE CASCADE, CONSTRAINT "item_category_managed_item_id_fkey" FOREIGN KEY ("managed_item_id") REFERENCES "public"."managed_item" ("id") ON DELETE CASCADE)
+Step 11: CREATE INDEX "item_category_categoryId_idx" ON "public"."item_category" ("category_id")
+Step 12: CREATE INDEX "item_category_managedItemId_idx" ON "public"."item_category" ("managed_item_id")
+W0325 21:32:41.733547   17172 control.go:74] [projects/emulator/locations/emulator/services/itew6-project 7c75] connector "example" has errors: example\queries.gql:34:5: Cannot query field "id" on type "ManagedItem_KeyOutput".
+example\queries.gql:27:3: Field "managedItem_insert" must not have a selection since type "ManagedItem_KeyOutput" has no subfields.
+example\queries.gql:63:5: Cannot query field "managedItemId" on type "Assignment_KeyOutput".
+example\queries.gql:64:5: Cannot query field "assignedToId" on type "Assignment_KeyOutput".
+example\queries.gql:56:3: Field "assignment_insert" must not have a selection since type "Assignment_KeyOutput" has no subfields.
+
+sources: example\queries.gql [1758B] 
+I0325 21:32:41.733547   17172 control.go:100] [projects/emulator/locations/emulator/services/itew6-project 7c75] UpdateResources(): done
+Main schema: sources: schema\schema.gql [696B] 
+Connector "example": sources: example\queries.gql [1758B] 
+I0325 21:32:41.733547   17172 service.go:186] [projects/emulator/locations/emulator/services/itew6-project 7c75] while configuring to server.Settings{ConnectionString:"dbname='fdcdb' host='127.0.0.1' port='5432' sslmode='disable' dbname='fdcdb'", MaxOpenConnection:0, UseDummy:false, EnableGoogleMLIntegration:false, SchemaSettings:esql.Settings{SchemaValidationMode:"", SchemaName:""}}, failed to reload last live sources: 
+Errors: example\queries.gql:34:5: Cannot query field "id" on type "ManagedItem_KeyOutput".
+example\queries.gql:27:3: Field "managedItem_insert" must not have a selection since type "ManagedItem_KeyOutput" has no subfields.
+example\queries.gql:63:5: Cannot query field "managedItemId" on type "Assignment_KeyOutput".
+example\queries.gql:64:5: Cannot query field "assignedToId" on type "Assignment_KeyOutput".
+example\queries.gql:56:3: Field "assignment_insert" must not have a selection since type "Assignment_KeyOutput" has no subfields.
+I0325 21:32:41.734129   17172 configure_emulator.go:21] ConfigureEmulator successed
+Request: service_id: "itew6-project"
+connection_string: "postgres://127.0.0.1:5432/fdcdb?sslmode=disable"
+database: "fdcdb"
+
+Response: 

@@ -1,0 +1,46 @@
+extend type Assignment {
+  """
+  ✨ Implicit foreign key field based on `Assignment`.`managedItem`. It must match the value of `ManagedItem`.`id`. See `@ref` for how to customize it.
+  """
+  managedItemId: UUID! @fdc_generated(from: "Assignment.managedItem", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `Assignment`.`assignedTo`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  """
+  assignedToId: UUID! @fdc_generated(from: "Assignment.assignedTo", purpose: IMPLICIT_REF_FIELD)
+}
+extend type Category {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Category", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `Category`.`owner`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  """
+  ownerId: UUID @fdc_generated(from: "Category.owner", purpose: IMPLICIT_REF_FIELD)
+}
+extend type ItemCategory {
+  """
+  ✨ Implicit foreign key field based on `ItemCategory`.`managedItem`. It must match the value of `ManagedItem`.`id`. See `@ref` for how to customize it.
+  """
+  managedItemId: UUID! @fdc_generated(from: "ItemCategory.managedItem", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `ItemCategory`.`category`. It must match the value of `Category`.`id`. See `@ref` for how to customize it.
+  """
+  categoryId: UUID! @fdc_generated(from: "ItemCategory.category", purpose: IMPLICIT_REF_FIELD)
+}
+extend type ManagedItem {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "ManagedItem", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `ManagedItem`.`owner`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  """
+  ownerId: UUID @fdc_generated(from: "ManagedItem.owner", purpose: IMPLICIT_REF_FIELD)
+}
+extend type User {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "User", purpose: IMPLICIT_KEY_FIELD)
+}

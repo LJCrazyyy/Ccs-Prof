@@ -2,7 +2,6 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { menuItems } from '../lib/constants';
-import { ChevronLeft } from 'lucide-react';
 import * as Icons from 'lucide-react';
 
 interface SidebarProps {

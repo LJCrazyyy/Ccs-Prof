@@ -1,0 +1,709 @@
+extend type Assignment {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "Assignment", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `Assignment` table.
+  """
+  _count: Int! @fdc_generated(from: "Assignment.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Assignment` table where the `assignedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  assignedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Assignment.assignedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Assignment` table where the `assignedToId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  assignedToId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Assignment.assignedToId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Assignment` table where the `deadline` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  deadline_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Assignment.deadline", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Assignment` table where the `managedItemId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  managedItemId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Assignment.managedItemId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Assignment` table where the `notes` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  notes_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Assignment.notes", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `assignedAt` field in the `Assignment` table.
+  """
+  assignedAt_min: Timestamp @fdc_generated(from: "Assignment.assignedAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `deadline` field in the `Assignment` table.
+  """
+  deadline_min: Date @fdc_generated(from: "Assignment.deadline", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `assignedAt` field in the `Assignment` table.
+  """
+  assignedAt_max: Timestamp @fdc_generated(from: "Assignment.assignedAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `deadline` field in the `Assignment` table.
+  """
+  deadline_max: Date @fdc_generated(from: "Assignment.deadline", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "Assignment.managedItemId,assignedToId", purpose: ENTITY_ID)
+}
+extend type Category {
+  """
+  ✨ List `ItemCategory` objects in a one-to-many relationship (where `ItemCategory`.`category` is this object).
+  """
+  itemCategories_on_category(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ItemCategory_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ItemCategory_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ItemCategory_Having
+  ): [ItemCategory!]! @fdc_generated(from: "ItemCategory.category", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `ManagedItem` objects using `ItemCategory` as the join table (a `ItemCategory` object exists where its `category` is this and its `managedItem` is that).
+  """
+  managedItems_via_ItemCategory(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ItemCategory_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ItemCategory_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ItemCategory_Having
+  ): [ManagedItem!]! @fdc_generated(from: "ItemCategory", purpose: QUERY_MULTIPLE_MANY_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "Category", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `Category` table.
+  """
+  _count: Int! @fdc_generated(from: "Category.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Category` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  createdAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Category.createdAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Category` table where the `description` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  description_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Category.description", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Category` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Category.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Category` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  name_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Category.name", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Category` table where the `ownerId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  ownerId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Category.ownerId", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `createdAt` field in the `Category` table.
+  """
+  createdAt_min: Timestamp @fdc_generated(from: "Category.createdAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `createdAt` field in the `Category` table.
+  """
+  createdAt_max: Timestamp @fdc_generated(from: "Category.createdAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "Category.id", purpose: ENTITY_ID)
+}
+extend type ItemCategory {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "ItemCategory", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `ItemCategory` table.
+  """
+  _count: Int! @fdc_generated(from: "ItemCategory.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ItemCategory` table where the `assignedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  assignedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ItemCategory.assignedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ItemCategory` table where the `categoryId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  categoryId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ItemCategory.categoryId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ItemCategory` table where the `managedItemId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  managedItemId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ItemCategory.managedItemId", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `assignedAt` field in the `ItemCategory` table.
+  """
+  assignedAt_min: Timestamp @fdc_generated(from: "ItemCategory.assignedAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `assignedAt` field in the `ItemCategory` table.
+  """
+  assignedAt_max: Timestamp @fdc_generated(from: "ItemCategory.assignedAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "ItemCategory.managedItemId,categoryId", purpose: ENTITY_ID)
+}
+extend type ManagedItem {
+  """
+  ✨ List `Assignment` objects in a one-to-many relationship (where `Assignment`.`managedItem` is this object).
+  """
+  assignments_on_managedItem(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Assignment_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Assignment_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Assignment_Having
+  ): [Assignment!]! @fdc_generated(from: "Assignment.managedItem", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `ItemCategory` objects in a one-to-many relationship (where `ItemCategory`.`managedItem` is this object).
+  """
+  itemCategories_on_managedItem(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ItemCategory_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ItemCategory_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ItemCategory_Having
+  ): [ItemCategory!]! @fdc_generated(from: "ItemCategory.managedItem", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `Category` objects using `ItemCategory` as the join table (a `ItemCategory` object exists where its `managedItem` is this and its `category` is that).
+  """
+  categories_via_ItemCategory(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ItemCategory_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ItemCategory_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ItemCategory_Having
+  ): [Category!]! @fdc_generated(from: "ItemCategory", purpose: QUERY_MULTIPLE_MANY_TO_MANY)
+  """
+  ✨ List `User` objects using `Assignment` as the join table (a `Assignment` object exists where its `managedItem` is this and its `assignedTo` is that).
+  """
+  users_via_Assignment(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Assignment_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Assignment_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Assignment_Having
+  ): [User!]! @fdc_generated(from: "Assignment", purpose: QUERY_MULTIPLE_MANY_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "ManagedItem", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `ManagedItem` table.
+  """
+  _count: Int! @fdc_generated(from: "ManagedItem.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ManagedItem` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  createdAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ManagedItem.createdAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ManagedItem` table where the `description` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  description_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ManagedItem.description", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ManagedItem` table where the `dueDate` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  dueDate_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ManagedItem.dueDate", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ManagedItem` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ManagedItem.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ManagedItem` table where the `itemType` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  itemType_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ManagedItem.itemType", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ManagedItem` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  name_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ManagedItem.name", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ManagedItem` table where the `ownerId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  ownerId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ManagedItem.ownerId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ManagedItem` table where the `status` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  status_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ManagedItem.status", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `createdAt` field in the `ManagedItem` table.
+  """
+  createdAt_min: Timestamp @fdc_generated(from: "ManagedItem.createdAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `dueDate` field in the `ManagedItem` table.
+  """
+  dueDate_min: Date @fdc_generated(from: "ManagedItem.dueDate", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `createdAt` field in the `ManagedItem` table.
+  """
+  createdAt_max: Timestamp @fdc_generated(from: "ManagedItem.createdAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `dueDate` field in the `ManagedItem` table.
+  """
+  dueDate_max: Date @fdc_generated(from: "ManagedItem.dueDate", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "ManagedItem.id", purpose: ENTITY_ID)
+}
+extend type User {
+  """
+  ✨ List `Assignment` objects in a one-to-many relationship (where `Assignment`.`assignedTo` is this object).
+  """
+  assignments_on_assignedTo(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Assignment_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Assignment_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Assignment_Having
+  ): [Assignment!]! @fdc_generated(from: "Assignment.assignedTo", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `Category` objects in a one-to-many relationship (where `Category`.`owner` is this object).
+  """
+  categories_on_owner(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Category_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Category_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Category_Having
+  ): [Category!]! @fdc_generated(from: "Category.owner", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `ManagedItem` objects in a one-to-many relationship (where `ManagedItem`.`owner` is this object).
+  """
+  managedItems_on_owner(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ManagedItem_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ManagedItem_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ManagedItem_Having
+  ): [ManagedItem!]! @fdc_generated(from: "ManagedItem.owner", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `ManagedItem` objects using `Assignment` as the join table (a `Assignment` object exists where its `assignedTo` is this and its `managedItem` is that).
+  """
+  managedItems_via_Assignment(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Assignment_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Assignment_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Assignment_Having
+  ): [ManagedItem!]! @fdc_generated(from: "Assignment", purpose: QUERY_MULTIPLE_MANY_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "User", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `User` table.
+  """
+  _count: Int! @fdc_generated(from: "User.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  createdAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.createdAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `email` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  email_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.email", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `fullName` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  fullName_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.fullName", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `profilePictureUrl` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  profilePictureUrl_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.profilePictureUrl", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `username` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  username_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.username", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `createdAt` field in the `User` table.
+  """
+  createdAt_min: Timestamp @fdc_generated(from: "User.createdAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `createdAt` field in the `User` table.
+  """
+  createdAt_max: Timestamp @fdc_generated(from: "User.createdAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "User.id", purpose: ENTITY_ID)
+}

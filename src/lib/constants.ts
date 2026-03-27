@@ -1,5 +1,4 @@
 import { UserRole } from '../context/AuthContext';
-import { Menu } from 'lucide-react';
 
 export interface MenuItem {
   label: string;
@@ -15,6 +14,7 @@ export const menuItems: Record<UserRole, MenuItem[]> = {
     { label: 'Scheduling', path: '/dashboard/admin/scheduling', icon: 'Calendar' },
     { label: 'Subjects & Curriculum', path: '/dashboard/admin/subjects', icon: 'BookOpen' },
     { label: 'Events', path: '/dashboard/admin/events', icon: 'CalendarDays' },
+    { label: 'Announcements', path: '/dashboard/admin/announcements', icon: 'Bell' },
     { label: 'Research', path: '/dashboard/admin/research', icon: 'FileText' },
     { label: 'Users', path: '/dashboard/admin/users', icon: 'Settings' },
   ],

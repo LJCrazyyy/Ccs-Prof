@@ -1,6 +1,5 @@
 import React from 'react';
 import { mockSchedule } from '../../lib/constants';
-import { Calendar } from 'lucide-react';
 
 export const StudentSchedule: React.FC = () => {
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];

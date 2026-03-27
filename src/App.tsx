@@ -11,6 +11,7 @@ import { AdminFaculty } from './pages/admin/Faculty';
 import { AdminScheduling } from './pages/admin/Scheduling';
 import { AdminSubjects } from './pages/admin/Subjects';
 import { AdminEvents } from './pages/admin/Events';
+import { AdminAnnouncements } from './pages/admin/Announcements';
 import { AdminResearch } from './pages/admin/Research';
 import { AdminUsers } from './pages/admin/Users';
 
@@ -64,6 +65,10 @@ export const App: React.FC = () => {
           <Route
             path="/dashboard/admin/events"
             element={<ProtectedRoute requiredRole="admin"><AdminEvents /></ProtectedRoute>}
+          />
+          <Route
+            path="/dashboard/admin/announcements"
+            element={<ProtectedRoute requiredRole="admin"><AdminAnnouncements /></ProtectedRoute>}
           />
           <Route
             path="/dashboard/admin/research"
