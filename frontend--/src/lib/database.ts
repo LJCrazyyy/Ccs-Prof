@@ -246,12 +246,12 @@ export const studentDB = {
  * Faculty-specific operations
  */
 export const facultyDB = {
-  getFaculty: (facultyId: string) => getDocument('faculties', facultyId),
-  getAllFaculty: () => getCollection('faculties'),
-  addFaculty: (data: any) => addDocument('faculties', data),
+  getFaculty: (facultyId: string) => getDocument('faculty', facultyId),
+  getAllFaculty: () => getCollection('faculty'),
+  addFaculty: (data: any) => addDocument('faculty', data),
   updateFaculty: (facultyId: string, data: any) =>
-    updateDocument('faculties', facultyId, data),
-  deleteFaculty: (facultyId: string) => deleteDocument('faculties', facultyId),
+    updateDocument('faculty', facultyId, data),
+  deleteFaculty: (facultyId: string) => deleteDocument('faculty', facultyId),
 };
 
 /**
