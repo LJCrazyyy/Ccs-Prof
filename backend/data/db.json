@@ -1,0 +1,75 @@
+{
+  "users": [],
+  "subjects": [],
+  "students": [
+    {
+      "id": "qWLcft5JVze7nG3LpT5VyttUgoD2",
+      "name": "Mikha Lim",
+      "email": "yuichi292168@gmail.com",
+      "idNumber": "2203300",
+      "year": "1st",
+      "program": "BSCS",
+      "status": "Regular",
+      "phone": "09282346158",
+      "address": "BRGY 5",
+      "dateOfBirth": "2026-04-06",
+      "skills": "basketball, communication",
+      "organizations": "wew",
+      "role": "student",
+      "createdAt": "2026-04-06T04:26:05.493Z",
+      "created_at": "2026-04-06T04:26:05.493Z",
+      "updated_at": "2026-04-06T04:26:05.493Z",
+      "updatedAt": "2026-04-06T04:26:05.493Z"
+    }
+  ],
+  "faculties": [],
+  "courses": [],
+  "grades": [],
+  "schedules": [],
+  "events": [
+    {
+      "id": "5cea4a34-c054-4fd4-87da-c271a2ae0768",
+      "title": "wew",
+      "date": "2026-04-06",
+      "description": "wewweweweweweweewe",
+      "type": "school",
+      "location": "wew",
+      "startTime": "12:29",
+      "endTime": "15:33",
+      "created_at": "2026-04-06T04:29:29.758Z",
+      "updated_at": "2026-04-06T04:29:29.758Z",
+      "createdAt": "2026-04-06T04:29:29.758Z",
+      "updatedAt": "2026-04-06T04:29:29.758Z"
+    }
+  ],
+  "research": [
+    {
+      "id": "77c6b26d-58a7-42d5-8fd7-e1c8763e1755",
+      "title": "wew",
+      "author": "wew",
+      "year": 2026,
+      "status": "In Progress",
+      "created_at": "2026-04-06T04:29:56.663Z",
+      "updated_at": "2026-04-06T04:29:56.663Z",
+      "createdAt": "2026-04-06T04:29:56.663Z",
+      "updatedAt": "2026-04-06T04:29:56.663Z"
+    }
+  ],
+  "announcements": [
+    {
+      "id": "a0687a00-dea5-4147-8bbf-646908bde2c2",
+      "title": "wew",
+      "content": "",
+      "date": "2026-04-06",
+      "admin": "Admin",
+      "priority": "medium",
+      "category": "General",
+      "created_at": "2026-04-06T04:29:50.413Z",
+      "updated_at": "2026-04-06T04:29:50.413Z",
+      "createdAt": "2026-04-06T04:29:50.413Z",
+      "updatedAt": "2026-04-06T04:29:50.413Z"
+    }
+  ],
+  "disciplineRecords": [],
+  "messages": []
+}
