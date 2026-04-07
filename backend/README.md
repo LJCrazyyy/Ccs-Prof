@@ -1,24 +1,63 @@
-# Node Backend
+# Backend (Node.js + Express)
 
-This folder now runs a small Express API that matches the frontend admin/data routes.
+This backend is a Node.js Express API used by the frontend admin and user pages.
 
-## Run
+## Prerequisites
+
+- Node.js 18+ (Node.js 20 LTS recommended)
+- npm
+
+## Setup
+
+From this folder (`backend/`):
 
 ```bash
 npm install
+```
+
+## Run
+
+Development:
+
+```bash
 npm run dev
 ```
 
-The server starts on `http://127.0.0.1:8080` by default.
+Production-style start:
 
-## Endpoints
+```bash
+npm start
+```
+
+Default server URL:
+
+- http://127.0.0.1:8080
+
+## Configuration
+
+- The backend reads `PORT` from environment variables.
+- If `PORT` is not set, it defaults to `8080`.
+
+PowerShell example:
+
+```powershell
+$env:PORT=9000
+npm run dev
+```
+
+## Data Storage
+
+- Data is file-backed in `data/db.json`.
+- No separate SQL database is required for local development.
+
+## Main API Routes
 
 - `GET /health`
-- `GET /admin/:collection`
-- `GET /admin/:collection/:id`
-- `POST /admin/:collection`
-- `PUT /admin/:collection/:id`
-- `DELETE /admin/:collection/:id`
+- `GET /admin/:collectionName`
+- `GET /admin/:collectionName/:id`
+- `POST /admin/:collectionName`
+- `PUT /admin/:collectionName/:id`
+- `DELETE /admin/:collectionName/:id`
 - `GET /admin/users/admins`
 - `PUT /admin/faculty/:facultyId/assign-subject`
 - `PUT /admin/faculty/:facultyId/assign-event`
@@ -26,6 +65,9 @@ The server starts on `http://127.0.0.1:8080` by default.
 - `PUT /admin/schedules/:scheduleId/reassign`
 - `GET /student/discipline-records`
 
-## Storage
+## Troubleshooting
 
-Data is stored in `data/db.json` as a simple JSON file so the API works without a separate database.
+- `npm error Missing script: "dev"`
+	- Run the command inside `backend/`, not the project root.
+- `Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'dotenv'`
+	- Run `npm install` in `backend/`.
