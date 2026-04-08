@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Trash2, Edit2, Search } from 'lucide-react';
+import { Trash2, Edit2, Search, Mail, CalendarPlus, BookOpen } from 'lucide-react';
 import { useAsync } from '../../hooks/useAsync';
 import { useForm } from '../../hooks/useAsync';
 import { useSearch } from '../../hooks/useAsync';
 import { usePagination } from '../../hooks/useAsync';
-import { facultyDB } from '../../lib/database';
+import { facultyDB, studentDB, coursesDB, eventsDB } from '../../lib/database';
 import { LoadingSpinner, ErrorMessage, EmptyState, FormInput, SectionHeader, Pagination, Card } from '../../components/ui/shared';
 
 interface Faculty {
@@ -16,6 +16,27 @@ interface Faculty {
   phone?: string;
   office?: string;
   qualifications?: string;
+  event_ids?: string[];
+}
+
+interface Course {
+  id: string | number;
+  code?: string;
+  name?: string;
+}
+
+interface EventItem {
+  id: string | number;
+  title?: string;
+  date?: string;
+  location?: string;
+}
+
+interface Student {
+  id: string | number;
+  name: string;
+  email: string;
+  idNumber?: string;
 }
 
 interface FacultyFormData {
@@ -55,6 +76,17 @@ export const AdminFaculty: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [departmentFilter, setDepartmentFilter] = useState<string>('All');
   const [showForm, setShowForm] = useState(false);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [selectedSubjectFaculty, setSelectedSubjectFaculty] = useState<string | null>(null);
+  const [selectedEventFaculty, setSelectedEventFaculty] = useState<string | null>(null);
+  const [selectedMessageFaculty, setSelectedMessageFaculty] = useState<string | null>(null);
+  const [subjectValue, setSubjectValue] = useState('');
+  const [eventValue, setEventValue] = useState('');
+  const [messageStudentId, setMessageStudentId] = useState('');
+  const [messageSubject, setMessageSubject] = useState('');
+  const [messageBody, setMessageBody] = useState('');
 
   const { data: facultyData, loading, error, execute: fetchFaculty } = useAsync<Faculty[]>(() =>
     facultyDB.getAllFaculty().then((data: any) => data as Faculty[])
@@ -80,6 +112,22 @@ export const AdminFaculty: React.FC = () => {
 
   useEffect(() => {
     fetchFaculty();
+    const loadSupportingData = async () => {
+      try {
+        const [loadedCourses, loadedEvents, loadedStudents] = await Promise.all([
+          coursesDB.getAllCourses(),
+          eventsDB.getAllEvents(),
+          studentDB.getAllStudents(),
+        ]);
+        setCourses(loadedCourses as Course[]);
+        setEvents(loadedEvents as EventItem[]);
+        setStudents(loadedStudents as Student[]);
+      } catch (err) {
+        console.error('Failed to load supplemental faculty data', err);
+      }
+    };
+
+    loadSupportingData();
   }, [fetchFaculty]);
 
   useEffect(() => {
@@ -160,7 +208,7 @@ export const AdminFaculty: React.FC = () => {
       office: f.office || '',
       qualifications: f.qualifications || '',
     });
-    setEditingId(f.id);
+    setEditingId(String(f.id));
     setShowForm(true);
   };
 
@@ -175,6 +223,104 @@ export const AdminFaculty: React.FC = () => {
     } catch (err: any) {
       console.error('faculty delete error', err);
       alert(err?.message || 'Failed to delete faculty');
+    }
+  };
+
+  const handleAssignSubject = (facultyItem: Faculty) => {
+    setSelectedSubjectFaculty(String(facultyItem.id));
+    setSubjectValue(facultyItem.specialization || '');
+    setSelectedEventFaculty(null);
+    setSelectedMessageFaculty(null);
+  };
+
+  const submitAssignSubject = async () => {
+    if (!selectedSubjectFaculty || !subjectValue.trim()) {
+      alert('Please select a subject to assign.');
+      return;
+    }
+
+    try {
+      await facultyDB.assignSubject(selectedSubjectFaculty, subjectValue.trim());
+      setFaculty(prev =>
+        prev.map(f =>
+          String(f.id) === selectedSubjectFaculty ? { ...f, specialization: subjectValue.trim() } : f
+        )
+      );
+      setSelectedSubjectFaculty(null);
+      setSubjectValue('');
+      window.dispatchEvent(new Event('facultyUpdated'));
+      alert('Subject assigned successfully!');
+    } catch (err: any) {
+      console.error('assign subject error', err);
+      alert(err?.message || 'Failed to assign subject');
+    }
+  };
+
+  const handleAssignEvent = (facultyItem: Faculty) => {
+    setSelectedEventFaculty(String(facultyItem.id));
+    setEventValue('');
+    setSelectedSubjectFaculty(null);
+    setSelectedMessageFaculty(null);
+  };
+
+  const submitAssignEvent = async () => {
+    if (!selectedEventFaculty || !eventValue) {
+      alert('Please select an event to assign.');
+      return;
+    }
+
+    try {
+      await facultyDB.assignEvent(selectedEventFaculty, eventValue);
+      setFaculty(prev =>
+        prev.map(f =>
+          String(f.id) === selectedEventFaculty
+            ? {
+                ...f,
+                event_ids: Array.from(new Set([...(f.event_ids || []), eventValue])),
+              }
+            : f
+        )
+      );
+      setSelectedEventFaculty(null);
+      setEventValue('');
+      window.dispatchEvent(new Event('facultyUpdated'));
+      alert('Event assigned successfully!');
+    } catch (err: any) {
+      console.error('assign event error', err);
+      alert(err?.message || 'Failed to assign event');
+    }
+  };
+
+  const handleMessageStudent = (facultyItem: Faculty) => {
+    setSelectedMessageFaculty(String(facultyItem.id));
+    setMessageStudentId('');
+    setMessageSubject(`Message from ${facultyItem.name}`);
+    setMessageBody('');
+    setSelectedSubjectFaculty(null);
+    setSelectedEventFaculty(null);
+  };
+
+  const submitMessageStudent = async () => {
+    if (!selectedMessageFaculty || !messageStudentId || !messageSubject.trim() || !messageBody.trim()) {
+      alert('Please select a student, subject, and message body.');
+      return;
+    }
+
+    try {
+      await facultyDB.messageStudent({
+        faculty_id: selectedMessageFaculty,
+        student_id: messageStudentId,
+        subject: messageSubject.trim(),
+        message: messageBody.trim(),
+      });
+      setSelectedMessageFaculty(null);
+      setMessageStudentId('');
+      setMessageSubject('');
+      setMessageBody('');
+      alert('Message sent successfully!');
+    } catch (err: any) {
+      console.error('send message error', err);
+      alert(err?.message || 'Failed to send message');
     }
   };
 
@@ -328,7 +474,149 @@ export const AdminFaculty: React.FC = () => {
         </div>
       </Card>
 
-      {/* Faculty Table */}
+      {selectedSubjectFaculty && (
+        <Card title="Assign Faculty Subject" className="mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-1">
+              <p className="text-sm font-medium text-gray-700 mb-2">Faculty</p>
+              <p className="text-gray-800">
+                {faculty.find((f) => String(f.id) === selectedSubjectFaculty)?.name || 'Selected faculty'}
+              </p>
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Select Subject</label>
+              <select
+                value={subjectValue}
+                onChange={(e) => setSubjectValue(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+              >
+                <option value="">Choose a subject</option>
+                {courses.map((course) => (
+                  <option key={course.id} value={course.name || course.code || ''}>
+                    {course.code ? `${course.code} - ${course.name}` : course.name}
+                  </option>
+                ))}
+              </select>
+              <div className="mt-4 flex gap-3 flex-wrap">
+                <button
+                  onClick={submitAssignSubject}
+                  className="bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-lg transition"
+                >
+                  Assign Subject
+                </button>
+                <button
+                  onClick={() => setSelectedSubjectFaculty(null)}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-2 rounded-lg transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {selectedEventFaculty && (
+        <Card title="Assign Faculty Event" className="mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-1">
+              <p className="text-sm font-medium text-gray-700 mb-2">Faculty</p>
+              <p className="text-gray-800">
+                {faculty.find((f) => String(f.id) === selectedEventFaculty)?.name || 'Selected faculty'}
+              </p>
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Select Event</label>
+              <select
+                value={eventValue}
+                onChange={(e) => setEventValue(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+              >
+                <option value="">Choose an event</option>
+                {events.map((eventItem) => (
+                  <option key={eventItem.id} value={String(eventItem.id)}>
+                    {eventItem.title || `Event ${eventItem.id}`}
+                  </option>
+                ))}
+              </select>
+              <div className="mt-4 flex gap-3 flex-wrap">
+                <button
+                  onClick={submitAssignEvent}
+                  className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg transition"
+                >
+                  Assign Event
+                </button>
+                <button
+                  onClick={() => setSelectedEventFaculty(null)}
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-2 rounded-lg transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {selectedMessageFaculty && (
+        <Card title="Message a Student" className="mb-8">
+          <div className="grid grid-cols-1 gap-4">
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Faculty</p>
+              <p className="text-gray-800">
+                {faculty.find((f) => String(f.id) === selectedMessageFaculty)?.name || 'Selected faculty'}
+              </p>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Student</label>
+              <select
+                value={messageStudentId}
+                onChange={(e) => setMessageStudentId(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+              >
+                <option value="">Choose a student</option>
+                {students.map((student) => (
+                  <option key={student.id} value={String(student.id)}>
+                    {student.name} ({student.email})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <FormInput
+              label="Subject"
+              id="messageSubject"
+              type="text"
+              value={messageSubject}
+              onChange={(e) => setMessageSubject(e.target.value)}
+              placeholder="Why are you reaching out?"
+            />
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Message</label>
+              <textarea
+                value={messageBody}
+                onChange={(e) => setMessageBody(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary h-32"
+                placeholder="Type your message to the student here..."
+              />
+            </div>
+            <div className="flex gap-3 flex-wrap">
+              <button
+                onClick={submitMessageStudent}
+                className="bg-blue-700 hover:bg-blue-800 text-white px-5 py-2 rounded-lg transition"
+              >
+                Send Message
+              </button>
+              <button
+                onClick={() => setSelectedMessageFaculty(null)}
+                className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-2 rounded-lg transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </Card>
+      )}
+
       <Card title="Faculty List">
         {!faculty || faculty.length === 0 ? (
           <EmptyState
@@ -366,13 +654,34 @@ export const AdminFaculty: React.FC = () => {
                           {f.specialization}
                         </span>
                       </td>
-                      <td className="py-3 px-4 flex gap-2">
+                      <td className="py-3 px-4 flex flex-wrap gap-2">
                         <button
                           onClick={() => handleEdit(f)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded transition"
                           title="Edit"
                         >
                           <Edit2 size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleAssignSubject(f)}
+                          className="p-2 text-purple-600 hover:bg-purple-50 rounded transition"
+                          title="Assign Subject"
+                        >
+                          <BookOpen size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleAssignEvent(f)}
+                          className="p-2 text-green-600 hover:bg-green-50 rounded transition"
+                          title="Assign Event"
+                        >
+                          <CalendarPlus size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleMessageStudent(f)}
+                          className="p-2 text-blue-800 hover:bg-blue-50 rounded transition"
+                          title="Message Student"
+                        >
+                          <Mail size={18} />
                         </button>
                         <button
                           onClick={() => handleDelete(f.id)}

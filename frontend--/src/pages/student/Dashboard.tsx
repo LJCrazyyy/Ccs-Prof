@@ -2,9 +2,9 @@ import React, { useEffect, useMemo } from 'react';
 import { Award, Calendar, BookOpen, FileText, Bell, Clock, Link as LinkIcon, User, BookMarked, CalendarDays, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useAsync } from '../../hooks/useAsync';
-import { gradesDB, coursesDB, eventsDB } from '../../lib/database';
+import { announcementsDB, gradesDB, coursesDB, eventsDB, researchDB } from '../../lib/database';
 import { ErrorMessage, EmptyState } from '../../components/ui/shared';
-import { mockAnnouncements, mockEvents, mockActivities } from '../../lib/constants';
+import { mockAnnouncements, mockEvents, mockActivities, mockResearch } from '../../lib/constants';
 import { Link } from 'react-router-dom';
 
 interface Grade {
@@ -29,6 +29,22 @@ interface Event {
   description: string;
 }
 
+interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  date: string;
+  admin: string;
+}
+
+interface ResearchItem {
+  id: string;
+  title: string;
+  author: string;
+  year: number;
+  status: string;
+}
+
 export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
 
@@ -44,15 +60,43 @@ export const StudentDashboard: React.FC = () => {
     eventsDB.getAllEvents().then((data: any) => (data as Event[])).catch(() => (mockEvents as unknown as Event[]))
   );
 
+  const { data: announcements, error: announcementsError, execute: fetchAnnouncements } = useAsync<Announcement[]>(() =>
+    announcementsDB.getAllAnnouncements().then((data: any) => data as Announcement[]).catch(() => (mockAnnouncements as unknown as Announcement[]))
+  );
+
+  const { data: research, error: researchError, execute: fetchResearch } = useAsync<ResearchItem[]>(() =>
+    researchDB.getAllResearch().then((data: any) => data as ResearchItem[]).catch(() => (mockResearch as unknown as ResearchItem[]))
+  );
+
   useEffect(() => {
     if (user?.id) {
       fetchGrades();
       fetchCourses();
       fetchEvents();
+      fetchAnnouncements();
+      fetchResearch();
     }
-  }, [user?.id, fetchGrades, fetchCourses, fetchEvents]);
+  }, [user?.id, fetchGrades, fetchCourses, fetchEvents, fetchAnnouncements, fetchResearch]);
 
-  const hasError = gradesError || coursesError || eventsError;
+  useEffect(() => {
+    const refreshStudentData = () => {
+      fetchAnnouncements();
+      fetchEvents();
+      fetchResearch();
+    };
+
+    window.addEventListener('announcementsUpdated', refreshStudentData);
+    window.addEventListener('eventsUpdated', refreshStudentData);
+    window.addEventListener('researchUpdated', refreshStudentData);
+
+    return () => {
+      window.removeEventListener('announcementsUpdated', refreshStudentData);
+      window.removeEventListener('eventsUpdated', refreshStudentData);
+      window.removeEventListener('researchUpdated', refreshStudentData);
+    };
+  }, [fetchAnnouncements, fetchEvents, fetchResearch]);
+
+  const hasError = gradesError || coursesError || eventsError || announcementsError || researchError;
 
   const gpa = useMemo(() => {
     if (!grades || grades.length === 0) return 3.85;
@@ -62,10 +106,19 @@ export const StudentDashboard: React.FC = () => {
 
   const completedCourses = grades?.length || 0;
   const currentClasses = courses?.length || 5;
-  const researchPapers = 3; // TODO: Fetch from research collection
+  const researchPapers = research?.length ?? (researchError ? mockResearch.length : 0);
 
-  const recentAnnouncements = mockAnnouncements.slice(0, 3);
-  const upcomingEvents = (events || mockEvents)
+  const recentAnnouncements = (announcements && announcements.length > 0
+    ? announcements
+    : announcementsError
+      ? mockAnnouncements
+      : [])
+    .slice(0, 3);
+  const upcomingEvents = (events && events.length > 0
+    ? events
+    : eventsError
+      ? mockEvents
+      : [])
     .filter(event => new Date(event.date) > new Date())
     .slice(0, 3);
   const upcomingActivities = mockActivities.filter(activity => new Date(activity.date) > new Date()).slice(0, 4);

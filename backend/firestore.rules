@@ -1,9 +1,81 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read/write access to all authenticated users
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // User profiles: owners can access their own profile; admins can access all.
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) || isAdmin();
+      allow update, delete: if isOwner(userId) || isAdmin();
+    }
+
+    // Public read collections used by the portal landing/dashboard pages.
+    match /announcements/{document=**} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /events/{document=**} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /research/{document=**} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /courses/{document=**} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /subjects/{document=**} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Authenticated application data.
+    match /students/{document=**} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /faculty/{document=**} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Some modules use "faculties" as collection name.
+    match /faculties/{document=**} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /grades/{document=**} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /schedules/{document=**} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /discipline_records/{document=**} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Fallback for other synced Laravel collections.
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isSignedIn();
     }
   }
 }
