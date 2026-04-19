@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Briefcase, Users, Clock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { EmptyState, ErrorMessage } from '../../components/ui/shared';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
@@ -33,15 +34,27 @@ export const FacultyTeachingLoad: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchFacultyEndpoint = async (path: string) => {
+    const directResponse = await fetch(`${API_BASE}${path}`);
+    if (directResponse.status !== 404) {
+      return directResponse;
+    }
+
+    return fetch(`${API_BASE}/api${path}`);
+  };
+
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
 
     const fetchTeachingLoad = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_BASE}/faculty/${user.id}/teaching-load`);
+        const response = await fetchFacultyEndpoint(`/faculty/${user.id}/teaching-load`);
         if (!response.ok) throw new Error('Failed to fetch teaching load');
-        const data: TeachingLoad = await response.json();
+        const data = (await response.json()) as TeachingLoad;
         setTeachingLoad(data);
         setError(null);
       } catch (err) {
@@ -55,12 +68,16 @@ export const FacultyTeachingLoad: React.FC = () => {
     fetchTeachingLoad();
   }, [user?.id]);
 
+  if (!user) {
+    return <EmptyState title="Not signed in" description="Please sign in to view your teaching load." />;
+  }
+
   if (loading) {
     return <div className="text-center py-10">Loading teaching load...</div>;
   }
 
   if (error || !teachingLoad) {
-    return <div className="bg-red-100 text-red-800 p-4 rounded-lg">{error || 'Error loading data'}</div>;
+    return <ErrorMessage message={error || 'Error loading teaching load'} />;
   }
 
   return (
@@ -77,6 +94,7 @@ export const FacultyTeachingLoad: React.FC = () => {
             <Briefcase className="text-blue-500" size={32} />
           </div>
         </div>
+
         <div className="card">
           <div className="flex items-center justify-between">
             <div>
@@ -86,6 +104,7 @@ export const FacultyTeachingLoad: React.FC = () => {
             <Users className="text-green-500" size={32} />
           </div>
         </div>
+
         <div className="card">
           <div className="flex items-center justify-between">
             <div>

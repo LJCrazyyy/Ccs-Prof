@@ -5,10 +5,17 @@ import { useForm } from '../../hooks/useAsync';
 import { useSearch } from '../../hooks/useAsync';
 import { usePagination } from '../../hooks/useAsync';
 import { facultyDB, studentDB, coursesDB, eventsDB } from '../../lib/database';
+import { auth, db } from '../../lib/firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { LoadingSpinner, ErrorMessage, EmptyState, FormInput, SectionHeader, Pagination, Card } from '../../components/ui/shared';
+<<<<<<< HEAD
 import { auth, db } from '../../lib/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+=======
+import { emitSyncEvent } from '../../lib/syncEvents';
+>>>>>>> ea6091d96e8feaa8a9551935f7cc418dee245e70
 
 interface Faculty {
   id: string | number;
@@ -45,6 +52,7 @@ interface Student {
 interface FacultyFormData {
   name: string;
   email: string;
+  password: string;
   department: string;
   specialization: string;
   phone: string;
@@ -56,6 +64,7 @@ interface FacultyFormData {
 const initialFormState: FacultyFormData = {
   name: '',
   email: '',
+  password: '',
   department: 'Computer Science',
   specialization: '',
   phone: '',
@@ -67,6 +76,7 @@ const initialFormState: FacultyFormData = {
 const validationSchema = {
   name: (value: string) => value.trim().length < 3 ? 'Name must be at least 3 characters' : '',
   email: (value: string) => !value.includes('@') ? 'Invalid email address' : '',
+  password: (value: string) => value.trim().length < 6 ? 'Password must be at least 6 characters' : '',
   department: (value: string) => value.trim().length === 0 ? 'Department is required' : '',
   specialization: (value: string) => value.trim().length === 0 ? 'Specialization is required' : '',
   phone: (value: string) => value.trim().length === 0 ? 'Phone is required' : '',
@@ -94,7 +104,10 @@ export const AdminFaculty: React.FC = () => {
   const [messageSubject, setMessageSubject] = useState('');
   const [messageBody, setMessageBody] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
+<<<<<<< HEAD
   const [isSubmitting, setIsSubmitting] = useState(false);
+=======
+>>>>>>> ea6091d96e8feaa8a9551935f7cc418dee245e70
 
   const { data: facultyData, loading, error, execute: fetchFaculty } = useAsync<Faculty[]>(() =>
     facultyDB.getAllFaculty().then((data: any) => data as Faculty[])
@@ -169,9 +182,10 @@ export const AdminFaculty: React.FC = () => {
       !cleaned.specialization ||
       !cleaned.phone ||
       !cleaned.office ||
-      !cleaned.qualifications
+      !cleaned.qualifications ||
+      (!editingId && !normalizedPassword)
     ) {
-      alert('Please complete all required faculty fields.');
+      alert('Please complete all required faculty fields and provide a password for new faculty accounts.');
       return;
     }
 
@@ -180,27 +194,41 @@ export const AdminFaculty: React.FC = () => {
       return;
     }
 
+<<<<<<< HEAD
     if (!editingId && normalizedPassword.length < 6) {
       alert('Password is required for new faculty and must be at least 6 characters.');
       return;
     }
 
     if (!db || !auth) {
+=======
+    if (!auth || !db) {
+>>>>>>> ea6091d96e8feaa8a9551935f7cc418dee245e70
       alert('Authentication or database is not initialized.');
       return;
     }
 
+<<<<<<< HEAD
     setIsSubmitting(true);
+=======
+>>>>>>> ea6091d96e8feaa8a9551935f7cc418dee245e70
     try {
       if (editingId) {
         await facultyDB.updateFaculty(String(editingId), cleaned);
 
         const userRef = doc(db, 'users', String(editingId));
         const userSnap = await getDoc(userRef);
+<<<<<<< HEAD
         if (userSnap.exists()) {
           await updateDoc(userRef, {
             ...cleaned,
             role: 'faculty',
+=======
+
+        if (userSnap.exists()) {
+          await updateDoc(userRef, {
+            ...cleaned,
+>>>>>>> ea6091d96e8feaa8a9551935f7cc418dee245e70
             updatedAt: new Date().toISOString(),
           });
         } else {
@@ -218,20 +246,35 @@ export const AdminFaculty: React.FC = () => {
         setFaculty(updated);
         setEditingId(null);
         window.dispatchEvent(new Event('facultyUpdated'));
+        emitSyncEvent('facultyUpdated', { id: editingId, ...cleaned }, 'Faculty');
         alert('Faculty updated successfully!');
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, cleaned.email, normalizedPassword);
         const uid = userCredential.user.uid;
 
+<<<<<<< HEAD
         const facultyPayload = {
+=======
+        const userData = {
+>>>>>>> ea6091d96e8feaa8a9551935f7cc418dee245e70
           ...cleaned,
           id: uid,
           role: 'faculty',
           createdAt: new Date().toISOString(),
         };
 
+<<<<<<< HEAD
         await setDoc(doc(db, 'users', uid), facultyPayload);
         await facultyDB.addFaculty(facultyPayload);
+=======
+        await setDoc(doc(db, 'users', uid), userData);
+        await setDoc(doc(db, 'faculties', uid), {
+          ...cleaned,
+          id: uid,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+>>>>>>> ea6091d96e8feaa8a9551935f7cc418dee245e70
 
         const newFaculty: Faculty = {
           ...cleaned,
@@ -239,6 +282,7 @@ export const AdminFaculty: React.FC = () => {
         };
         setFaculty(prev => [...prev, newFaculty]);
         window.dispatchEvent(new Event('facultyUpdated'));
+        emitSyncEvent('facultyCreated', newFaculty, 'Faculty');
         alert('Faculty added successfully!');
       }
       reset();
@@ -256,6 +300,7 @@ export const AdminFaculty: React.FC = () => {
     setFormData({
       name: f.name,
       email: f.email,
+      password: '',
       department: f.department,
       specialization: f.specialization,
       phone: f.phone || '',
@@ -274,6 +319,7 @@ export const AdminFaculty: React.FC = () => {
       await facultyDB.deleteFaculty(String(id));
       setFaculty(faculty.filter(f => String(f.id) !== String(id)));
       window.dispatchEvent(new Event('facultyUpdated'));
+      emitSyncEvent('facultyDeleted', { id }, 'Faculty');
       alert('Faculty deleted successfully!');
     } catch (err: any) {
       console.error('faculty delete error', err);
@@ -423,6 +469,27 @@ export const AdminFaculty: React.FC = () => {
               onBlur={handleBlur}
               error={touched.email ? errors.email : ''}
             />
+            {!editingId && (
+              <div className="relative">
+                <FormInput
+                  label="Password"
+                  id="password"
+                  type={passwordVisible ? 'text' : 'password'}
+                  placeholder="Enter a secure password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.password ? errors.password : ''}
+                />
+                <button
+                  type="button"
+                  onClick={() => setPasswordVisible(!passwordVisible)}
+                  className="absolute right-3 top-10 text-gray-500"
+                >
+                  {passwordVisible ? 'Hide' : 'Show'}
+                </button>
+              </div>
+            )}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Department</label>
               <select
