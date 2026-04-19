@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { FileText, ExternalLink } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 interface ResearchItem {
   id: string;
   title: string;
@@ -26,7 +28,7 @@ export const FacultyResearch: React.FC = () => {
     const fetchResearch = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:8080/faculty/${user.id}/research`);
+        const response = await fetch(`${API_BASE}/faculty/${user.id}/research`);
         if (!response.ok) throw new Error('Failed to fetch research');
         const data: ResearchItem[] = await response.json();
         const sorted = data.sort((a, b) => b.year - a.year);

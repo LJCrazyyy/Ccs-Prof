@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { BookOpen, Download, File } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 interface CourseMaterial {
   id: string;
   title: string;
@@ -31,7 +33,7 @@ export const StudentLessons: React.FC = () => {
       setError(null);
 
       try {
-        const response = await fetch(`http://localhost:8080/student/${user.id}/schedule`);
+        const response = await fetch(`${API_BASE}/student/${user.id}/schedule`);
         if (!response.ok) {
           throw new Error('Failed to load schedule');
         }

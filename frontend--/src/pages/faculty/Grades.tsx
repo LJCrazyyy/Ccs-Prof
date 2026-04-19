@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Save } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 interface StudentGrade {
   studentId: string;
   studentName: string;
@@ -44,7 +46,7 @@ export const FacultyGrades: React.FC = () => {
 
     const fetchClasses = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/faculty/${user.id}/classes`);
+        const response = await fetch(`${API_BASE}/faculty/${user.id}/classes`);
         if (!response.ok) throw new Error('Failed to fetch classes');
         const data: Class[] = await response.json();
         setClasses(data);
@@ -67,7 +69,7 @@ export const FacultyGrades: React.FC = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `http://localhost:8080/faculty/${user.id}/grades/${selectedClassId}`
+          `${API_BASE}/faculty/${user.id}/grades/${selectedClassId}`
         );
         if (!response.ok) throw new Error('Failed to fetch grades');
         const data: GradeData = await response.json();
@@ -110,7 +112,7 @@ export const FacultyGrades: React.FC = () => {
       setError(null);
       
       const response = await fetch(
-        `http://localhost:8080/faculty/${user.id}/grades/${selectedClassId}`,
+        `${API_BASE}/faculty/${user.id}/grades/${selectedClassId}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Award, Calendar, BookOpen, FileText, Bell, Clock, Link as LinkIcon, User, BookMarked, CalendarDays, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 import { ErrorMessage, EmptyState } from '../../components/ui/shared';
 import { Link } from 'react-router-dom';
 
@@ -45,11 +47,11 @@ export const StudentDashboard: React.FC = () => {
 
       try {
         const [gradesRes, scheduleRes, eventsRes, researchRes, announcementsRes] = await Promise.all([
-          fetch(`http://localhost:8080/student/${user.id}/grades`),
-          fetch(`http://localhost:8080/student/${user.id}/schedule`),
-          fetch(`http://localhost:8080/student/${user.id}/events`),
-          fetch(`http://localhost:8080/student/${user.id}/research`),
-          fetch('http://localhost:8080/admin/announcements'),
+          fetch(`${API_BASE}/student/${user.id}/grades`),
+          fetch(`${API_BASE}/student/${user.id}/schedule`),
+          fetch(`${API_BASE}/student/${user.id}/events`),
+          fetch(`${API_BASE}/student/${user.id}/research`),
+          fetch(`${API_BASE}/admin/announcements`),
         ]);
 
         if (!gradesRes.ok) throw new Error('Failed to load grades');
@@ -84,9 +86,9 @@ export const StudentDashboard: React.FC = () => {
     const refreshStudentData = async () => {
       try {
         const [eventsRes, researchRes, announcementsRes] = await Promise.all([
-          fetch(`http://localhost:8080/student/${user.id}/events`),
-          fetch(`http://localhost:8080/student/${user.id}/research`),
-          fetch('http://localhost:8080/admin/announcements'),
+          fetch(`${API_BASE}/student/${user.id}/events`),
+          fetch(`${API_BASE}/student/${user.id}/research`),
+          fetch(`${API_BASE}/admin/announcements`),
         ]);
 
         if (eventsRes.ok) setEventsList(await eventsRes.json());

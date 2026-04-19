@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Briefcase, Users, Clock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 interface ClassLoad {
   id: string;
   code: string;
@@ -37,7 +39,7 @@ export const FacultyTeachingLoad: React.FC = () => {
     const fetchTeachingLoad = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:8080/faculty/${user.id}/teaching-load`);
+        const response = await fetch(`${API_BASE}/faculty/${user.id}/teaching-load`);
         if (!response.ok) throw new Error('Failed to fetch teaching load');
         const data: TeachingLoad = await response.json();
         setTeachingLoad(data);

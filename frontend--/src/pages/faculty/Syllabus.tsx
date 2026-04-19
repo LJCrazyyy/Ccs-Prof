@@ -2,16 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { BookOpen, Plus, Trash2, FileText } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 interface Syllabus {
   id: string;
-  courseId: string;
-  courseName: string;
-  courseCode: string;
+  subjectId?: string;
+  subjectName?: string;
+  subjectCode?: string;
+  courseId?: string;
+  courseName?: string;
+  courseCode?: string;
   title: string;
-  content: string;
-  fileUrl: string;
-  status: 'draft' | 'published';
-  updatedAt: string;
+  content?: string;
+  fileUrl?: string;
+  status?: 'draft' | 'published';
+  updatedAt?: string;
+  updated_at?: string;
 }
 
 export const FacultySyllabus: React.FC = () => {
@@ -25,13 +31,22 @@ export const FacultySyllabus: React.FC = () => {
   const [title, setTitle] = useState('');
   const [file, setFile] = useState<File | null>(null);
 
+  const fetchFacultyEndpoint = async (path: string, init?: RequestInit) => {
+    const directResponse = await fetch(`${API_BASE}${path}`, init);
+    if (directResponse.status !== 404) {
+      return directResponse;
+    }
+
+    return fetch(`${API_BASE}/api${path}`, init);
+  };
+
   useEffect(() => {
     if (!user?.id) return;
 
     const fetchSyllabi = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:8080/faculty/${user.id}/syllabi`);
+        const response = await fetchFacultyEndpoint(`/faculty/${user.id}/syllabi`);
         if (!response.ok) throw new Error('Failed to fetch syllabi');
         const data: Syllabus[] = await response.json();
         setSyllabi(data);
@@ -54,14 +69,17 @@ export const FacultySyllabus: React.FC = () => {
 
     try {
       setUploading(true);
-      const formData = new FormData();
-      formData.append('courseId', courseId);
-      formData.append('title', title);
-      formData.append('file', file);
-
-      const response = await fetch(`http://localhost:8080/faculty/${user.id}/syllabi`, {
+      const response = await fetchFacultyEndpoint(`/faculty/${user.id}/syllabi`, {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          subjectId: courseId,
+          title,
+          fileUrl: file.name,
+          status: 'draft',
+        }),
       });
 
       if (!response.ok) throw new Error('Upload failed');
@@ -83,7 +101,7 @@ export const FacultySyllabus: React.FC = () => {
     if (!user?.id || !window.confirm('Are you sure?')) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/faculty/${user.id}/syllabi/${syllabusId}`, {
+      const response = await fetchFacultyEndpoint(`/faculty/${user.id}/syllabi/${syllabusId}`, {
         method: 'DELETE',
       });
 
@@ -175,10 +193,10 @@ export const FacultySyllabus: React.FC = () => {
                     <BookOpen size={24} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-bold text-gray-800">{syllabus.courseCode}</h3>
+                    <h3 className="text-lg font-bold text-gray-800">{syllabus.subjectCode || syllabus.courseCode || 'N/A'}</h3>
                     <p className="text-gray-600 text-sm">{syllabus.title}</p>
                     <p className="text-gray-500 text-xs mt-2">
-                      Last updated: {new Date(syllabus.updatedAt).toLocaleDateString()}
+                      Last updated: {new Date(syllabus.updatedAt || syllabus.updated_at || Date.now()).toLocaleDateString()}
                     </p>
                     {syllabus.fileUrl && (
                       <a
@@ -196,12 +214,12 @@ export const FacultySyllabus: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      syllabus.status === 'published'
+                      (syllabus.status || 'draft') === 'published'
                         ? 'bg-green-100 text-green-800'
                         : 'bg-yellow-100 text-yellow-800'
                     }`}
                   >
-                    {syllabus.status.charAt(0).toUpperCase() + syllabus.status.slice(1)}
+                    {((syllabus.status || 'draft').charAt(0).toUpperCase() + (syllabus.status || 'draft').slice(1))}
                   </span>
                   <button
                     onClick={() => handleDelete(syllabus.id)}

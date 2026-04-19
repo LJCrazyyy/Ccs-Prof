@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { CalendarDays, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 interface StudentEvent {
   id: string;
   title: string;
@@ -28,7 +30,7 @@ export const StudentEvents: React.FC = () => {
       setError(null);
 
       try {
-        const response = await fetch(`http://localhost:8080/student/${user.id}/events`);
+        const response = await fetch(`${API_BASE}/student/${user.id}/events`);
         if (!response.ok) {
           throw new Error('Failed to load events');
         }
@@ -50,7 +52,7 @@ export const StudentEvents: React.FC = () => {
 
     setRegistering(eventId);
     try {
-      const response = await fetch(`http://localhost:8080/student/${user.id}/events/${eventId}/register`, {
+      const response = await fetch(`${API_BASE}/student/${user.id}/events/${eventId}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });

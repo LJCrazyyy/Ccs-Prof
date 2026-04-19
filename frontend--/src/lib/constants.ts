@@ -17,6 +17,7 @@ export const menuItems: Record<UserRole, MenuItem[]> = {
     { label: 'Announcements', path: '/dashboard/admin/announcements', icon: 'Bell' },
     { label: 'Research', path: '/dashboard/admin/research', icon: 'FileText' },
     { label: 'Users', path: '/dashboard/admin/users', icon: 'Settings' },
+    { label: 'Guidance', path: '/dashboard/admin/guidance', icon: 'ClipboardList' },
   ],
   student: [
     { label: 'Dashboard', path: '/dashboard/student', icon: 'LayoutDashboard' },

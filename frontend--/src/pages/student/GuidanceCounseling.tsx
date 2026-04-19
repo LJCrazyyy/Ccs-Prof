@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { AlertTriangle, CheckCircle2, ClipboardList, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useAsync } from '../../hooks/useAsync';
-import { guidanceDB } from '../../lib/database';
+import { apiUrl } from '../../lib/api';
 import { EmptyState, ErrorMessage } from '../../components/ui/shared';
 
 interface DisciplineRecord {
@@ -23,7 +23,12 @@ export const StudentGuidanceCounseling: React.FC = () => {
     error,
     execute,
   } = useAsync<DisciplineRecord[]>(() =>
-    guidanceDB.getStudentDisciplineRecords(user?.id, user?.email).then((data: any) => data as DisciplineRecord[])
+    fetch(apiUrl(`/student/discipline-records?studentId=${encodeURIComponent(user?.id || '')}&email=${encodeURIComponent(user?.email || '')}`))
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to load discipline records');
+        return response.json();
+      })
+      .then((data: any) => data as DisciplineRecord[])
   );
 
   useEffect(() => {

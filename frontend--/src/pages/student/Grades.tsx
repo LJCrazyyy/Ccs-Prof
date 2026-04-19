@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 interface StudentGrade {
   gradeId: string;
   classId: string;
@@ -38,7 +40,7 @@ export const StudentGrades: React.FC = () => {
 
       try {
         const queryParam = selectedTerm === 'All Terms' ? 'all' : selectedTerm;
-        const response = await fetch(`http://localhost:8080/student/${user.id}/grades?term=${encodeURIComponent(queryParam)}`);
+        const response = await fetch(`${API_BASE}/student/${user.id}/grades?term=${encodeURIComponent(queryParam)}`);
         if (!response.ok) {
           throw new Error('Failed to load grades');
         }

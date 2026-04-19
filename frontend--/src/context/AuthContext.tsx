@@ -86,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(basicUser);
           
           // Fetch full user data from Firestore in background (non-blocking)
-          getDoc(doc(db, 'users', currentUser.uid))
+          getDoc(doc(db!, 'users', currentUser.uid))
             .then((userDoc) => {
               if (userDoc.exists()) {
                 const userData = userDoc.data() as User;

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { CalendarDays, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 interface Event {
   id: string;
   title: string;
@@ -24,7 +26,7 @@ export const FacultyEvents: React.FC = () => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:8080/faculty/${user.id}/events`);
+        const response = await fetch(`${API_BASE}/faculty/${user.id}/events`);
         if (!response.ok) throw new Error('Failed to fetch events');
         const data: Event[] = await response.json();
         const sorted = data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -44,7 +46,7 @@ export const FacultyEvents: React.FC = () => {
     if (!user?.id) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/faculty/${user.id}/events/${eventId}/join`, {
+      const response = await fetch(`${API_BASE}/faculty/${user.id}/events/${eventId}/join`, {
         method: 'POST',
       });
 

@@ -1,189 +1,134 @@
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  setDoc,
-  where,
-} from 'firebase/firestore';
-import type { DocumentData, QueryConstraint, WhereFilterOp } from 'firebase/firestore';
-import { db } from './firebase';
+export type DocumentData = Record<string, any>;
 
-const getDb = () => {
-  if (!db) {
-    throw new Error('Firebase is not initialized. Check frontend environment variables.');
-  }
-  return db;
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
+const buildQueryString = (params?: Record<string, any>) => {
+  if (!params || Object.keys(params).length === 0) return '';
+  const search = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && String(value).length > 0) {
+      search.append(key, String(value));
+    }
+  });
+  const query = search.toString();
+  return query ? `?${query}` : '';
 };
 
-const withId = <T extends DocumentData>(id: string, data: DocumentData): T =>
-  ({ id, ...data } as T);
+const apiRequest = async <T>(path: string, options?: RequestInit): Promise<T> => {
+  const response = await fetch(`${API_BASE}${path}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options?.headers || {}),
+    },
+    ...options,
+  });
 
-const normalizeAdminRole = (role: unknown) => String(role ?? '').toLowerCase();
-/**
- * Generic function to get a single document by ID
- */
+  if (!response.ok) {
+    const text = await response.text().catch(() => '');
+    throw new Error(text || `Request failed: ${response.status}`);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  return response.json() as Promise<T>;
+};
+
+const normalizeCollection = (collectionName: string) => {
+  if (collectionName === 'disciplineRecords') return 'discipline-records';
+  return collectionName;
+};
+
 export const getDocument = async <T extends DocumentData>(
   collectionName: string,
   docId: string
 ): Promise<T | null> => {
   try {
-    const dbInstance = getDb();
-    const snapshot = await getDoc(doc(dbInstance, collectionName, docId));
-    if (!snapshot.exists()) return null;
-    return withId<T>(snapshot.id, snapshot.data());
-  } catch (error) {
-    console.error(`Error fetching document from ${collectionName}:`, error);
-    throw error;
+    return await apiRequest<T>(`/admin/${normalizeCollection(collectionName)}/${docId}`);
+  } catch {
+    return null;
   }
 };
 
-/**
- * Generic function to get all documents from a collection
- */
 export const getCollection = async <T extends DocumentData>(
   collectionName: string
 ): Promise<T[]> => {
-  try {
-    const dbInstance = getDb();
-    const snapshots = await getDocs(collection(dbInstance, collectionName));
-    return snapshots.docs.map((snapshot) => withId<T>(snapshot.id, snapshot.data()));
-  } catch (error) {
-    console.error(`Error fetching collection ${collectionName}:`, error);
-    throw error;
-  }
+  return apiRequest<T[]>(`/admin/${normalizeCollection(collectionName)}`);
 };
 
-/**
- * Generic function to add a document to a collection
- */
 export const addDocument = async <T extends DocumentData>(
   collectionName: string,
   data: T
 ): Promise<string> => {
-  try {
-    const dbInstance = getDb();
-    const reference = await addDoc(collection(dbInstance, collectionName), data);
-    return reference.id;
-  } catch (error) {
-    console.error(`Error adding document to ${collectionName}:`, error);
-    throw error;
-  }
+  const created = await apiRequest<{ id: string }>(`/admin/${normalizeCollection(collectionName)}`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return String(created.id);
 };
 
-/**
- * Generic function to update a document
- */
 export const updateDocument = async <T extends DocumentData>(
   collectionName: string,
   docId: string,
   data: Partial<T>
 ): Promise<void> => {
-  try {
-    const dbInstance = getDb();
-    await setDoc(doc(dbInstance, collectionName, docId), data, { merge: true });
-  } catch (error) {
-    console.error(`Error updating document in ${collectionName}:`, error);
-    throw error;
-  }
+  await apiRequest(`/admin/${normalizeCollection(collectionName)}/${docId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
 };
 
-/**
- * Generic function to delete a document
- */
 export const deleteDocument = async (
   collectionName: string,
   docId: string
 ): Promise<void> => {
-  try {
-    const dbInstance = getDb();
-    await deleteDoc(doc(dbInstance, collectionName, docId));
-  } catch (error) {
-    console.error(`Error deleting document from ${collectionName}:`, error);
-    throw error;
-  }
+  await apiRequest(`/admin/${normalizeCollection(collectionName)}/${docId}`, {
+    method: 'DELETE',
+  });
 };
 
-/**
- * Generic function to query documents with conditions
- */
 export const queryCollection = async <T extends DocumentData>(
   collectionName: string,
   conditions: Array<[string, string, any]>
 ): Promise<T[]> => {
-  try {
-    const dbInstance = getDb();
-    const constraints: QueryConstraint[] = conditions.map(([field, operator, value]) =>
-      where(field, operator as WhereFilterOp, value)
-    );
-    const snapshots = await getDocs(query(collection(dbInstance, collectionName), ...constraints));
-    return snapshots.docs.map((snapshot) => withId<T>(snapshot.id, snapshot.data()));
-  } catch (error) {
-    console.error(`Error querying collection ${collectionName}:`, error);
-    throw error;
-  }
+  const filters: Record<string, any> = {};
+  conditions.forEach(([field, operator, value]) => {
+    if (operator === '==') {
+      filters[field] = value;
+    }
+  });
+
+  const queryString = buildQueryString(filters);
+  return apiRequest<T[]>(`/admin/${normalizeCollection(collectionName)}${queryString}`);
 };
 
-/**
- * Add or update a document
- */
 export const setDocument = async <T extends DocumentData>(
   collectionName: string,
   docId: string,
   data: T
 ): Promise<void> => {
-  try {
-    const dbInstance = getDb();
-    await setDoc(doc(dbInstance, collectionName, docId), data, { merge: true });
-  } catch (error) {
-    console.error(`Error setting document in ${collectionName}:`, error);
-    throw error;
-  }
+  await updateDocument(collectionName, docId, data);
 };
 
-/**
- * Update specific fields in a document
- */
 export const updateDocumentFields = async <T extends Partial<DocumentData>>(
   collectionName: string,
   docId: string,
   data: T
 ): Promise<void> => {
-  try {
-    const dbInstance = getDb();
-    await setDoc(doc(dbInstance, collectionName, docId), data, { merge: true });
-  } catch (error) {
-    console.error(`Error updating document in ${collectionName}:`, error);
-    throw error;
-  }
+  await updateDocument(collectionName, docId, data);
 };
 
-/**
- * Delete a document
- */
 export const deleteDocumentOld = async (
   collectionName: string,
   docId: string
-): Promise<void> => {
-  return deleteDocument(collectionName, docId);
-};
+): Promise<void> => deleteDocument(collectionName, docId);
 
-/**
- * Add a new document with autogenerated ID
- */
 export const addDocumentOld = async <T extends DocumentData>(
   collectionName: string,
   data: T
-): Promise<string> => {
-  return addDocument(collectionName, data);
-};
+): Promise<string> => addDocument(collectionName, data);
 
-/**
- * Batch write operations (simplified, not fully implemented for backend)
- */
 export const batchWrite = async (
   operations: Array<{
     type: 'set' | 'update' | 'delete';
@@ -192,110 +137,90 @@ export const batchWrite = async (
     data?: DocumentData;
   }>
 ): Promise<void> => {
-  const dbInstance = getDb();
-
-  // For simplicity, perform operations sequentially.
-  for (const op of operations) {
-    if (op.type === 'set' || op.type === 'update') {
-      await setDoc(doc(dbInstance, op.collection, op.docId), op.data || {}, { merge: true });
-    } else if (op.type === 'delete') {
-      await deleteDoc(doc(dbInstance, op.collection, op.docId));
+  for (const operation of operations) {
+    if (operation.type === 'delete') {
+      await deleteDocument(operation.collection, operation.docId);
+    } else {
+      await updateDocument(operation.collection, operation.docId, operation.data || {});
     }
   }
 };
 
-// Specific collection operations
-
-/**
- * Student-specific operations
- */
 export const studentDB = {
-  getStudent: (studentId: string) =>
-    getDocument(
-      'students',
-      studentId
-    ),
+  getStudent: (studentId: string) => getDocument('students', studentId),
   getAllStudents: () => getCollection('students'),
-  addStudent: (data: any) => addDocument('students', data),
-  updateStudent: (studentId: string, data: any) =>
-    updateDocument('students', studentId, data),
+  addStudent: async (data: any) => {
+    if (data?.id) {
+      await updateDocument('students', String(data.id), data);
+      return String(data.id);
+    }
+    return addDocument('students', data);
+  },
+  updateStudent: (studentId: string, data: any) => updateDocument('students', studentId, data),
   deleteStudent: (studentId: string) => deleteDocument('students', studentId),
 };
 
-/**
- * Faculty-specific operations
- */
 export const facultyDB = {
   getFaculty: (facultyId: string) => getDocument('faculties', facultyId),
   getAllFaculty: () => getCollection('faculties'),
-  addFaculty: (data: any) => addDocument('faculties', data),
-  updateFaculty: (facultyId: string, data: any) =>
-    updateDocument('faculties', facultyId, data),
+  addFaculty: async (data: any) => {
+    if (data?.id) {
+      await updateDocument('faculties', String(data.id), data);
+      return String(data.id);
+    }
+    return addDocument('faculties', data);
+  },
+  updateFaculty: (facultyId: string, data: any) => updateDocument('faculties', facultyId, data),
   deleteFaculty: (facultyId: string) => deleteDocument('faculties', facultyId),
-  assignSubject: async (facultyId: string, subject: string) => {
-    await updateDocument('faculties', facultyId, {
-      subject,
-      assigned_subject: subject,
-      specialization: subject,
-    });
-    return getDocument('faculties', facultyId);
-  },
-  assignEvent: async (facultyId: string, eventId: string) => {
-    const current = await getDocument<DocumentData>('faculties', facultyId);
-    const existingIds = Array.isArray(current?.event_ids) ? current.event_ids : [];
-    const nextEventIds = Array.from(new Set([...existingIds, eventId]));
-
-    await updateDocument('faculties', facultyId, {
-      event_id: eventId,
-      eventId,
-      event_ids: nextEventIds,
-    });
-
-    return getDocument('faculties', facultyId);
-  },
-  messageStudent: async (payload: any) => {
-    const created_at = new Date().toISOString();
-    const id = await addDocument('messages', { ...payload, created_at });
-    return { id, ...payload, created_at };
-  },
+  assignSubject: async (facultyId: string, subject: string) =>
+    apiRequest(`/admin/faculty/${facultyId}/assign-subject`, {
+      method: 'PUT',
+      body: JSON.stringify({ subject }),
+    }),
+  assignEvent: async (facultyId: string, eventId: string) =>
+    apiRequest(`/admin/faculty/${facultyId}/assign-event`, {
+      method: 'PUT',
+      body: JSON.stringify({ event_id: eventId }),
+    }),
+  messageStudent: async (payload: any) =>
+    apiRequest(`/admin/faculty/message-student`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 };
 
-/**
- * Admin-specific operations
- */
 export const adminDB = {
   getAdmin: (adminId: string) => getDocument('users', adminId),
-  getAllAdmins: async () => {
-    const users = await getCollection<DocumentData>('users');
-    return users.filter((user) => normalizeAdminRole(user.role) === 'admin');
-  },
-  updateAdmin: (adminId: string, data: any) =>
-    updateDocument('users', adminId, data),
+  getAllAdmins: () => apiRequest('/admin/users/admins'),
+  updateAdmin: (adminId: string, data: any) => updateDocument('users', adminId, data),
   deleteAdmin: (adminId: string) => deleteDocument('users', adminId),
 };
 
-/**
- * Courses operations
- */
 export const coursesDB = {
-  getCourse: (courseId: string) => getDocument('courses', courseId),
-  getAllCourses: () => getCollection('courses'),
+  getCourse: async (courseId: string) => {
+    const subject = await getDocument('subjects', courseId);
+    if (subject) return subject;
+    return getDocument('courses', courseId);
+  },
+  getAllCourses: async () => {
+    const [subjects, courses] = await Promise.all([
+      getCollection('subjects').catch(() => []),
+      getCollection('courses').catch(() => []),
+    ]);
+
+    if (subjects.length > 0) return subjects;
+    return courses;
+  },
   addCourse: (data: any) => addDocument('courses', data),
-  updateCourse: (courseId: string, data: any) =>
-    updateDocument('courses', courseId, data),
+  updateCourse: (courseId: string, data: any) => updateDocument('courses', courseId, data),
   deleteCourse: (courseId: string) => deleteDocument('courses', courseId),
 };
 
-/**
- * Grades operations
- */
 export const gradesDB = {
   getGrade: (gradeId: string) => getDocument('grades', gradeId),
-  getStudentGrades: (studentId: string) =>
-    queryCollection('grades', [['studentId', '==', studentId]]),
+  getStudentGrades: (studentId: string) => queryCollection('grades', [['studentId', '==', studentId]]),
   getAllGrades: () => getCollection('grades'),
-  updateGrade: (gradeId: string, data: any) =>
-    updateDocument('grades', gradeId, data),
+  updateGrade: (gradeId: string, data: any) => updateDocument('grades', gradeId, data),
   deleteGrade: (gradeId: string) => deleteDocument('grades', gradeId),
 };
 
@@ -306,24 +231,28 @@ export const schedulesDB = {
   updateSchedule: (scheduleId: string, data: any) => updateDocument('schedules', scheduleId, data),
   deleteSchedule: (scheduleId: string) => deleteDocument('schedules', scheduleId),
   reassignFaculty: (scheduleId: string, facultyId: string) =>
-    updateDocument('schedules', scheduleId, { faculty_id: facultyId, facultyId }),
+    apiRequest(`/admin/schedules/${scheduleId}/reassign`, {
+      method: 'PUT',
+      body: JSON.stringify({ faculty_id: facultyId }),
+    }),
+  getStudentSchedule: (studentId: string) => apiRequest(`/student/${studentId}/schedule`),
+  getStudentScheduleDetails: (studentId: string, classId: string) =>
+    apiRequest(`/student/${studentId}/schedule/${classId}`),
+  enrollStudentCourse: (studentId: string, classId: string) =>
+    apiRequest(`/student/${studentId}/schedule/enroll/${classId}`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }),
 };
 
-/**
- * Events operations
- */
 export const eventsDB = {
   getEvent: (eventId: string) => getDocument('events', eventId),
   getAllEvents: () => getCollection('events'),
   addEvent: (data: any) => addDocument('events', data),
-  updateEvent: (eventId: string, data: any) =>
-    updateDocument('events', eventId, data),
+  updateEvent: (eventId: string, data: any) => updateDocument('events', eventId, data),
   deleteEvent: (eventId: string) => deleteDocument('events', eventId),
 };
 
-/**
- * Research operations
- */
 export const researchDB = {
   getResearch: (researchId: string) => getDocument('research', researchId),
   getAllResearch: () => getCollection('research'),
@@ -332,32 +261,18 @@ export const researchDB = {
   deleteResearch: (researchId: string) => deleteDocument('research', researchId),
 };
 
-/** Announcements operations */
 export const announcementsDB = {
-  getAnnouncement: (announcementId: string) =>
-    getDocument('announcements', announcementId),
+  getAnnouncement: (announcementId: string) => getDocument('announcements', announcementId),
   getAllAnnouncements: () => getCollection('announcements'),
   addAnnouncement: (data: any) => addDocument('announcements', data),
   updateAnnouncement: (announcementId: string, data: any) =>
     updateDocument('announcements', announcementId, data),
-  deleteAnnouncement: (announcementId: string) =>
-    deleteDocument('announcements', announcementId),
+  deleteAnnouncement: (announcementId: string) => deleteDocument('announcements', announcementId),
 };
 
-/** Guidance counseling / discipline records operations */
 export const guidanceDB = {
-  getStudentDisciplineRecords: async (studentId?: string, email?: string) => {
-    const dbInstance = getDb();
-    const constraints: QueryConstraint[] = [];
-
-    if (studentId) constraints.push(where('studentId', '==', studentId));
-    if (email) constraints.push(where('email', '==', email));
-
-    const recordsQuery = constraints.length
-      ? query(collection(dbInstance, 'disciplineRecords'), ...constraints)
-      : collection(dbInstance, 'disciplineRecords');
-    const snapshots = await getDocs(recordsQuery);
-
-    return snapshots.docs.map((snapshot) => withId(snapshot.id, snapshot.data()));
+  getStudentDisciplineRecords: (studentId?: string, email?: string) => {
+    const queryString = buildQueryString({ studentId, email });
+    return apiRequest(`/student/discipline-records${queryString}`);
   },
 };

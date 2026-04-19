@@ -4,6 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useAsync } from '../../hooks/useAsync';
 import { ErrorMessage, LoadingSpinner } from '../../components/ui/shared';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 interface StudentProfileRecord {
   id?: string;
   name?: string;
@@ -82,7 +84,7 @@ export const StudentProfile: React.FC = () => {
     () => async () => {
       if (!user?.id) return null;
       try {
-        const response = await fetch(`http://localhost:8080/student/${user.id}/profile`);
+        const response = await fetch(`${API_BASE}/student/${user.id}/profile`);
         if (!response.ok) {
           if (response.status === 404) return null;
           throw new Error('Failed to fetch profile');
@@ -187,7 +189,7 @@ export const StudentProfile: React.FC = () => {
         image: tempProfile.image,
       };
 
-      const response = await fetch(`http://localhost:8080/student/${user.id}/profile`, {
+      const response = await fetch(`${API_BASE}/student/${user.id}/profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(normalizedProfile),

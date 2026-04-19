@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { FileText } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 interface StudentResearch {
   id: string;
   title: string;
@@ -28,7 +30,7 @@ export const StudentResearch: React.FC = () => {
       setError(null);
 
       try {
-        const response = await fetch(`http://localhost:8080/student/${user.id}/research`);
+        const response = await fetch(`${API_BASE}/student/${user.id}/research`);
         if (!response.ok) {
           throw new Error('Failed to load research');
         }

@@ -18,14 +18,20 @@
       "role": "student",
       "createdAt": "2026-04-08T00:00:00.000Z",
       "created_at": "2026-04-08T00:00:00.000Z",
-      "updated_at": "2026-04-08T11:33:01.371Z",
-      "updatedAt": "2026-04-08T11:33:01.371Z",
+      "updated_at": "2026-04-19T07:17:31.165Z",
+      "updatedAt": "2026-04-19T07:17:31.165Z",
       "registered_events": [
-        "evt-001"
+        "evt-001",
+        "5a998ff6-3edb-40b9-a7c0-3de93ca11e63"
       ],
       "registeredEvents": [
-        "evt-001"
-      ]
+        "evt-001",
+        "5a998ff6-3edb-40b9-a7c0-3de93ca11e63"
+      ],
+      "enrolled_classes": [],
+      "enrolledClasses": [],
+      "enrollment_status": "pending-approval",
+      "enrollmentStatus": "pending-approval"
     },
     {
       "id": "qWLcft5JVze7nG3LpT5VyttUgoD2",
@@ -47,7 +53,19 @@
       "updatedAt": "2026-04-06T04:26:05.493Z"
     }
   ],
-  "faculties": [],
+  "faculties": [
+    {
+      "id": "2eb9ce89-d7d3-4c33-8e9f-0ac63356f81d",
+      "email": "faculty.20260419071522@test.local",
+      "department": "Computer Science",
+      "name": "[E2E-TEST] Faculty 20260419071522",
+      "specialization": "Testing",
+      "created_at": "2026-04-19T07:15:23.309Z",
+      "updated_at": "2026-04-19T07:15:23.309Z",
+      "createdAt": "2026-04-19T07:15:23.309Z",
+      "updatedAt": "2026-04-19T07:15:23.309Z"
+    }
+  ],
   "courses": [
     {
       "id": "cs101",
@@ -66,6 +84,17 @@
       "semester": "Spring 2026",
       "created_at": "2026-04-08T00:00:00.000Z",
       "updated_at": "2026-04-08T00:00:00.000Z"
+    },
+    {
+      "id": "8f0019e9-2489-4049-854f-9d37b6fcab44",
+      "units": 3,
+      "code": "TST20260419071522",
+      "name": "[E2E-TEST] Integrated Systems 20260419071522",
+      "type": "lecture-only",
+      "created_at": "2026-04-19T07:15:23.212Z",
+      "updated_at": "2026-04-19T07:15:23.212Z",
+      "createdAt": "2026-04-19T07:15:23.212Z",
+      "updatedAt": "2026-04-19T07:15:23.212Z"
     }
   ],
   "grades": [
@@ -96,6 +125,20 @@
       "totalGrade": 88.33,
       "created_at": "2026-04-08T00:00:00.000Z",
       "updated_at": "2026-04-08T00:00:00.000Z"
+    },
+    {
+      "id": "d9588f0c-27a1-4a9a-8146-a91ed167cb82",
+      "student_id": "3zuh9uR0AzY0ri6psnCR4VItB2B2 qWLcft5JVze7nG3LpT5VyttUgoD2",
+      "studentId": "3zuh9uR0AzY0ri6psnCR4VItB2B2 qWLcft5JVze7nG3LpT5VyttUgoD2",
+      "class_id": "sched1",
+      "classId": "sched1",
+      "attendance": 90,
+      "activity": 92,
+      "exam": 94,
+      "created_at": "2026-04-19T07:15:23.765Z",
+      "updated_at": "2026-04-19T07:15:23.765Z",
+      "createdAt": "2026-04-19T07:15:23.765Z",
+      "updatedAt": "2026-04-19T07:15:23.765Z"
     }
   ],
   "schedules": [
@@ -106,22 +149,25 @@
       "courseCode": "CS101",
       "courseName": "Introduction to Web Development",
       "instructor": "Dr. Johnson",
-      "room": "Tech Building 205",
+      "room": null,
       "dayOfWeek": "Monday",
       "startTime": "09:00",
       "endTime": "10:30",
       "enrolled": true,
-      "materials": [
-        {
-          "id": "mat1",
-          "title": "Lecture Slides Week 1",
-          "type": "pdf",
-          "url": "https://example.com/materials/cs101-week1.pdf",
-          "uploadedAt": "2026-04-01"
-        }
-      ],
+      "materials": [],
       "created_at": "2026-04-08T00:00:00.000Z",
-      "updated_at": "2026-04-08T00:00:00.000Z"
+      "updated_at": "2026-04-19T07:17:31.170Z",
+      "course_id": null,
+      "type": null,
+      "section": null,
+      "schedule": null,
+      "students": 0,
+      "faculty_id": null,
+      "createdAt": "2026-04-08T00:00:00.000Z",
+      "updatedAt": "2026-04-19T07:17:31.170Z",
+      "activities": [],
+      "exams": [],
+      "quizzes": []
     },
     {
       "id": "sched2",
@@ -180,6 +226,26 @@
       "updated_at": "2026-04-06T04:29:29.758Z",
       "createdAt": "2026-04-06T04:29:29.758Z",
       "updatedAt": "2026-04-06T04:29:29.758Z"
+    },
+    {
+      "id": "3863f2df-493a-428c-8a2c-d324c0e4d242",
+      "endTime": "11:00",
+      "description": "Integration validation event",
+      "startTime": "09:00",
+      "location": "Hall",
+      "type": "school",
+      "date": "2026-04-20",
+      "title": "[E2E-TEST] Event 20260419071522",
+      "created_at": "2026-04-19T07:15:24.096Z",
+      "updated_at": "2026-04-19T07:15:24.129Z",
+      "createdAt": "2026-04-19T07:15:24.096Z",
+      "updatedAt": "2026-04-19T07:15:24.129Z",
+      "attendees": [
+        "2eb9ce89-d7d3-4c33-8e9f-0ac63356f81d"
+      ],
+      "faculties": [
+        "2eb9ce89-d7d3-4c33-8e9f-0ac63356f81d"
+      ]
     }
   ],
   "research": [
@@ -227,6 +293,19 @@
       "updated_at": "2026-04-06T04:29:50.413Z",
       "createdAt": "2026-04-06T04:29:50.413Z",
       "updatedAt": "2026-04-06T04:29:50.413Z"
+    },
+    {
+      "id": "b3ec7b0d-a74c-414d-b9b3-43047bdd4d98",
+      "content": "Integration validation",
+      "priority": "medium",
+      "date": "2026-04-19",
+      "category": "General",
+      "title": "[E2E-TEST] Announcement 20260419071522",
+      "admin": "E2E",
+      "created_at": "2026-04-19T07:15:23.929Z",
+      "updated_at": "2026-04-19T07:15:23.929Z",
+      "createdAt": "2026-04-19T07:15:23.929Z",
+      "updatedAt": "2026-04-19T07:15:23.929Z"
     }
   ],
   "disciplineRecords": [],
