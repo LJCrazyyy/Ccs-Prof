@@ -136,38 +136,6 @@ const buildPeopleIndex = (db) => {
   return index;
 };
 
-const resolveScheduleFacultyName = (schedule, peopleIndex) => {
-  const directName = normalizePeopleList([
-    schedule.faculty_name,
-    schedule.facultyName,
-    schedule.faculty,
-    schedule.instructor,
-    schedule.teacher,
-  ])[0];
-
-  if (directName) return directName;
-
-  const facultyCandidates = [
-    schedule.faculty_id,
-    schedule.facultyId,
-    schedule.instructor_id,
-    schedule.instructorId,
-    schedule.teacher_id,
-    schedule.teacherId,
-    ...(Array.isArray(schedule.faculty_ids) ? schedule.faculty_ids : []),
-    ...(Array.isArray(schedule.facultyIds) ? schedule.facultyIds : []),
-  ]
-    .map((value) => toComparableString(value))
-    .filter(Boolean);
-
-  for (const candidate of facultyCandidates) {
-    const resolved = peopleIndex.get(candidate) || peopleIndex.get(candidate.toLowerCase());
-    if (resolved) return resolved;
-  }
-
-  return 'TBD';
-};
-
 const studentCandidateValues = (student) => [
   student?.id,
   student?.studentId,
@@ -363,10 +331,10 @@ export const getStudentSchedule = async (studentId) => {
 export const getScheduleDetails = async (studentId, classId) => {
   const db = await loadDb();
   const { resolvedStudent, canonicalStudentId } = resolveStudentContext(db, studentId);
-  const peopleIndex = buildPeopleIndex(db);
   const allSchedules = (db.schedules ?? []).map(normalizeRecord);
   const allCourses = (db.courses ?? []).map(normalizeRecord);
   const allSubjects = (db.subjects ?? []).map(normalizeRecord);
+  const peopleIndex = buildPeopleIndex(db);
 
   const schedule = allSchedules.find((s) => String(s.id) === String(classId));
   if (!schedule) return null;
@@ -384,6 +352,12 @@ export const getScheduleDetails = async (studentId, classId) => {
   if (!isEnrolled && !isDirectlyAssigned) return null;
 
   const course = resolveCourseRecord(schedule, allCourses, allSubjects);
+  const facultyId = schedule.faculty_id ?? schedule.facultyId ?? schedule.faculty ?? '';
+  const facultyName =
+    schedule.faculty_name ??
+    schedule.facultyName ??
+    resolvePeopleNames(facultyId, peopleIndex)[0] ??
+    (facultyId ? String(facultyId) : 'TBD');
 
   return {
     classId,
@@ -392,7 +366,7 @@ export const getScheduleDetails = async (studentId, classId) => {
     section: schedule.section,
     schedule: buildScheduleLabel(schedule),
     room: schedule.room ?? 'TBD',
-    faculty: resolveScheduleFacultyName(schedule, peopleIndex),
+    faculty: facultyName,
     units: course?.units ?? 3,
     type: course?.type ?? 'lecture',
     description: course?.description ?? 'No description',
