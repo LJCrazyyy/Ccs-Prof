@@ -15,6 +15,7 @@ import { AdminEvents } from './pages/admin/Events';
 import { AdminAnnouncements } from './pages/admin/Announcements';
 import { AdminResearch } from './pages/admin/Research';
 import { AdminUsers } from './pages/admin/Users';
+import { AdminGuidance } from './pages/admin/Guidance';
 
 // Student Pages
 import { StudentDashboard } from './pages/student/Dashboard';
@@ -59,7 +60,12 @@ export const App: React.FC = () => {
   }
 
   return (
-    <Router>
+    <Router
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <AuthProvider>
         <Routes>
           {/* Login Route */}
@@ -97,6 +103,10 @@ export const App: React.FC = () => {
           <Route
             path="/dashboard/admin/research"
             element={<ProtectedRoute requiredRole="admin"><AdminResearch /></ProtectedRoute>}
+          />
+          <Route
+            path="/dashboard/admin/guidance"
+            element={<ProtectedRoute requiredRole="admin"><AdminGuidance /></ProtectedRoute>}
           />
           <Route
             path="/dashboard/admin/users"

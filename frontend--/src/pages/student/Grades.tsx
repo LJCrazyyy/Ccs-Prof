@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { studentDB } from '../../lib/database';
 
 interface StudentGrade {
   gradeId: string;
@@ -11,13 +12,6 @@ interface StudentGrade {
   activity: number;
   exam: number;
   totalGrade: number;
-}
-
-interface StudentGradesResponse {
-  studentId: string;
-  grades: StudentGrade[];
-  gwa: number;
-  totalCourses: number;
 }
 
 export const StudentGrades: React.FC = () => {
@@ -38,12 +32,7 @@ export const StudentGrades: React.FC = () => {
 
       try {
         const queryParam = selectedTerm === 'All Terms' ? 'all' : selectedTerm;
-        const response = await fetch(`http://localhost:8080/student/${user.id}/grades?term=${encodeURIComponent(queryParam)}`);
-        if (!response.ok) {
-          throw new Error('Failed to load grades');
-        }
-
-        const data: StudentGradesResponse = await response.json();
+        const data = await studentDB.getStudentGrades(user.id, queryParam);
         setGrades(data.grades);
         setGwa(data.gwa);
 
@@ -56,7 +45,7 @@ export const StudentGrades: React.FC = () => {
       }
     };
 
-    fetchGrades();
+    void fetchGrades();
   }, [user?.id, selectedTerm]);
 
   const avgGPA = useMemo(() => {

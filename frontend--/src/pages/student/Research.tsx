@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FileText } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { facultyDB, studentDB } from '../../lib/database';
 
 interface StudentResearch {
   id: string;
@@ -14,11 +15,38 @@ interface StudentResearch {
   url?: string;
 }
 
+interface PeopleRecord {
+  id: string | number;
+  name: string;
+  email?: string;
+}
+
 export const StudentResearch: React.FC = () => {
   const { user } = useAuth();
   const [research, setResearch] = useState<StudentResearch[]>([]);
+  const [facultyPeople, setFacultyPeople] = useState<PeopleRecord[]>([]);
+  const [studentPeople, setStudentPeople] = useState<PeopleRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadPeople = async () => {
+      try {
+        const [faculties, students] = await Promise.all([
+          facultyDB.getAllFaculty().catch(() => []),
+          studentDB.getAllStudents().catch(() => []),
+        ]);
+
+        setFacultyPeople((faculties || []) as PeopleRecord[]);
+        setStudentPeople((students || []) as PeopleRecord[]);
+      } catch {
+        setFacultyPeople([]);
+        setStudentPeople([]);
+      }
+    };
+
+    void loadPeople();
+  }, []);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -28,13 +56,8 @@ export const StudentResearch: React.FC = () => {
       setError(null);
 
       try {
-        const response = await fetch(`http://localhost:8080/student/${user.id}/research`);
-        if (!response.ok) {
-          throw new Error('Failed to load research');
-        }
-
-        const data = await response.json();
-        setResearch(data);
+        const data = await studentDB.getStudentResearch(user.id);
+        setResearch(data as unknown as StudentResearch[]);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unable to load research');
       } finally {
@@ -42,13 +65,51 @@ export const StudentResearch: React.FC = () => {
       }
     };
 
-    fetchResearch();
+    void fetchResearch();
   }, [user?.id]);
 
   const sortedResearch = useMemo(
     () => [...research].sort((a, b) => b.year - a.year),
     [research]
   );
+
+  const peopleIndex = useMemo(() => {
+    const map = new Map<string, string>();
+
+    const register = (person: PeopleRecord) => {
+      const name = String(person?.name ?? '').trim();
+      if (!name) return;
+
+      [person?.id, person?.email]
+        .map((value) => String(value ?? '').trim())
+        .filter(Boolean)
+        .forEach((key) => {
+          map.set(key, name);
+          map.set(key.toLowerCase(), name);
+        });
+    };
+
+    facultyPeople.forEach(register);
+    studentPeople.forEach(register);
+
+    return map;
+  }, [facultyPeople, studentPeople]);
+
+  const resolveName = (value: string) => {
+    const key = String(value ?? '').trim();
+    if (!key) return '';
+    return peopleIndex.get(key) || peopleIndex.get(key.toLowerCase()) || key;
+  };
+
+  const formatNames = (value: string[] | string | undefined) => {
+    if (!value) return '';
+
+    const items = Array.isArray(value) ? value : [value];
+    return items
+      .map((item) => resolveName(String(item)))
+      .filter(Boolean)
+      .join(', ');
+  };
 
   if (loading) return <div className="text-center py-8">Loading research...</div>;
 
@@ -66,8 +127,11 @@ export const StudentResearch: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {sortedResearch.map((researchItem) => (
-            <div key={researchItem.id} className="card">
+          {sortedResearch.map((researchItem, index) => (
+            <div
+              key={researchItem.id || `${researchItem.title}-${researchItem.year}-${index}`}
+              className="card"
+            >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-start gap-3">
@@ -76,8 +140,8 @@ export const StudentResearch: React.FC = () => {
                       <h3 className="text-lg font-bold text-gray-800">{researchItem.title}</h3>
                       <p className="text-gray-600 text-sm mt-2">{researchItem.description}</p>
                       <div className="mt-2 space-y-1 text-sm text-gray-600">
-                        <p>Authors: {Array.isArray(researchItem.authors) ? researchItem.authors.join(', ') : researchItem.authors}</p>
-                        {researchItem.adviser && <p>Adviser: {researchItem.adviser}</p>}
+                        <p>Authors: {formatNames(researchItem.authors)}</p>
+                        {researchItem.adviser && <p>Adviser: {resolveName(researchItem.adviser)}</p>}
                         <p>Year: {researchItem.year}</p>
                       </div>
                       {researchItem.url && (

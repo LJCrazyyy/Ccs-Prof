@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Save } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { facultyDB } from '../../lib/database';
 
 interface StudentGrade {
   studentId: string;
@@ -16,10 +17,22 @@ interface StudentGrade {
 
 interface Class {
   id: string;
+  classId?: string;
   courseCode: string;
   courseName: string;
   section: string;
-  semester: string;
+  schedule: string;
+  room: string;
+  units: number;
+  type: string;
+  materials: any[];
+  quizzes: any[];
+  exams: any[];
+  activities: any[];
+  facultyId: string;
+  faculty: string;
+  description: string;
+  yearLevel?: string | number;
 }
 
 interface GradeData {
@@ -31,6 +44,8 @@ interface GradeData {
 export const FacultyGrades: React.FC = () => {
   const { user } = useAuth();
   const [classes, setClasses] = useState<Class[]>([]);
+  const [selectedYearLevel, setSelectedYearLevel] = useState<string>('all');
+  const [selectedSection, setSelectedSection] = useState<string>('all');
   const [selectedClassId, setSelectedClassId] = useState<string>('');
   const [grades, setGrades] = useState<StudentGrade[]>([]);
   const [loading, setLoading] = useState(false);
@@ -44,12 +59,16 @@ export const FacultyGrades: React.FC = () => {
 
     const fetchClasses = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/faculty/${user.id}/classes`);
-        if (!response.ok) throw new Error('Failed to fetch classes');
-        const data: Class[] = await response.json();
+        const data = await facultyDB.getFacultyClasses(user.id) as Class[];
         setClasses(data);
         if (data.length > 0) {
-          setSelectedClassId(data[0].id);
+          const firstClass = data[0];
+          const defaultYear = String(firstClass.yearLevel ?? 'all');
+          const defaultSection = String(firstClass.section ?? 'all');
+
+          setSelectedYearLevel(defaultYear);
+          setSelectedSection(defaultSection);
+          setSelectedClassId(firstClass.id);
         }
       } catch (err) {
         console.error('Error loading classes:', err);
@@ -59,6 +78,41 @@ export const FacultyGrades: React.FC = () => {
     fetchClasses();
   }, [user?.id]);
 
+  const yearLevelOptions = Array.from(
+    new Set(classes.map((cls) => String(cls.yearLevel ?? 'Unassigned')))
+  );
+
+  const sectionOptions = Array.from(
+    new Set(
+      classes
+        .filter((cls) =>
+          selectedYearLevel === 'all'
+            ? true
+            : String(cls.yearLevel ?? 'Unassigned') === selectedYearLevel
+        )
+        .map((cls) => String(cls.section ?? 'Unassigned'))
+    )
+  );
+
+  const filteredClasses = classes.filter((cls) => {
+    const matchesYear =
+      selectedYearLevel === 'all' || String(cls.yearLevel ?? 'Unassigned') === selectedYearLevel;
+    const matchesSection =
+      selectedSection === 'all' || String(cls.section ?? 'Unassigned') === selectedSection;
+    return matchesYear && matchesSection;
+  });
+
+  useEffect(() => {
+    if (filteredClasses.length === 0) {
+      setSelectedClassId('');
+      return;
+    }
+
+    if (!filteredClasses.some((cls) => cls.id === selectedClassId)) {
+      setSelectedClassId(filteredClasses[0].id);
+    }
+  }, [filteredClasses, selectedClassId]);
+
   // Fetch grades when class is selected
   useEffect(() => {
     if (!user?.id || !selectedClassId) return;
@@ -66,11 +120,10 @@ export const FacultyGrades: React.FC = () => {
     const fetchGrades = async () => {
       try {
         setLoading(true);
-        const response = await fetch(
-          `http://localhost:8080/faculty/${user.id}/grades/${selectedClassId}`
-        );
-        if (!response.ok) throw new Error('Failed to fetch grades');
-        const data: GradeData = await response.json();
+        const data = await facultyDB.getFacultyGradeEntry(user.id, selectedClassId) as GradeData | null;
+        if (!data) {
+          throw new Error('Grades not found or access denied');
+        }
         setGrades(data.studentGrades);
         setError(null);
       } catch (err) {
@@ -108,24 +161,12 @@ export const FacultyGrades: React.FC = () => {
     try {
       setSaving(true);
       setError(null);
-      
-      const response = await fetch(
-        `http://localhost:8080/faculty/${user.id}/grades/${selectedClassId}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            grades: grades.map((g) => ({
-              studentId: g.studentId,
-              attendance: g.attendance,
-              activity: g.activity,
-              exam: g.exam,
-            })),
-          }),
-        }
-      );
-
-      if (!response.ok) throw new Error('Failed to save grades');
+      await facultyDB.saveFacultyClassGrades(user.id, selectedClassId, grades.map((g) => ({
+        studentId: g.studentId,
+        attendance: g.attendance,
+        activity: g.activity,
+        exam: g.exam,
+      })));
       setSuccess('Grades saved successfully!');
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
@@ -136,6 +177,9 @@ export const FacultyGrades: React.FC = () => {
   };
 
   const currentClass = classes.find((c) => c.id === selectedClassId);
+  const classAverage = grades.length > 0
+    ? grades.reduce((sum, grade) => sum + grade.totalGrade, 0) / grades.length
+    : 0;
 
   return (
     <div>
@@ -150,19 +194,56 @@ export const FacultyGrades: React.FC = () => {
       )}
 
       <div className="card">
-        <div className="mb-6">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Select Course</label>
-          <select
-            value={selectedClassId}
-            onChange={(e) => setSelectedClassId(e.target.value)}
-            className="w-full md:w-96 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
-          >
-            {classes.map((cls) => (
-              <option key={cls.id} value={cls.id}>
-                {cls.courseCode} - {cls.courseName} (Section {cls.section})
-              </option>
-            ))}
-          </select>
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Year Level</label>
+            <select
+              value={selectedYearLevel}
+              onChange={(e) => {
+                setSelectedYearLevel(e.target.value);
+                setSelectedSection('all');
+              }}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+            >
+              <option value="all">All year levels</option>
+              {yearLevelOptions.map((yearLevel) => (
+                <option key={yearLevel} value={yearLevel}>
+                  {yearLevel}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Section</label>
+            <select
+              value={selectedSection}
+              onChange={(e) => setSelectedSection(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+            >
+              <option value="all">All sections</option>
+              {sectionOptions.map((section) => (
+                <option key={section} value={section}>
+                  {section}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Class</label>
+            <select
+              value={selectedClassId}
+              onChange={(e) => setSelectedClassId(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+            >
+              {filteredClasses.map((cls) => (
+                <option key={cls.id} value={cls.id}>
+                  {cls.courseCode} - {cls.courseName} ({cls.section})
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {currentClass && (
@@ -170,6 +251,7 @@ export const FacultyGrades: React.FC = () => {
             <p className="text-sm text-gray-600">
               <strong>Class:</strong> {currentClass.courseName} ({currentClass.courseCode}) • 
               <strong className="ml-3">Section:</strong> {currentClass.section}
+              <strong className="ml-3">Year:</strong> {String(currentClass.yearLevel ?? 'Unassigned')}
             </p>
           </div>
         )}
@@ -248,6 +330,18 @@ export const FacultyGrades: React.FC = () => {
                     </tr>
                   ))}
                 </tbody>
+                <tfoot>
+                  <tr className="border-t-2 border-gray-200 bg-gray-50">
+                    <td colSpan={5} className="py-3 px-4 text-right font-semibold text-gray-700">
+                      Class Average Total Grade
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="font-bold text-gray-800 bg-blue-100 px-3 py-1 rounded text-center">
+                        {classAverage.toFixed(2)}
+                      </div>
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
 

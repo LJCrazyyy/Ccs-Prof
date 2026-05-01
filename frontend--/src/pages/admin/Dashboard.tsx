@@ -4,6 +4,7 @@ import { Users, Users2, BookOpen, BarChart3, RefreshCw, ArrowRight, Plus, Calend
 import { useAsync } from '../../hooks/useAsync';
 import { studentDB, facultyDB, coursesDB, eventsDB, announcementsDB } from '../../lib/database';
 import { ErrorMessage, EmptyState } from '../../components/ui/shared';
+import { onSyncEvent } from '../../lib/syncEvents';
 
 interface Student {
   id: string;
@@ -79,12 +80,26 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => {
     const onUpdated = () => refreshAll();
 
+    // Old event system listeners (for backward compatibility)
     window.addEventListener('studentsUpdated', onUpdated);
     window.addEventListener('facultyUpdated', onUpdated);
     window.addEventListener('coursesUpdated', onUpdated);
     window.addEventListener('eventsUpdated', onUpdated);
     window.addEventListener('announcementsUpdated', onUpdated);
     window.addEventListener('researchUpdated', onUpdated);
+
+    // New sync event system listeners
+    const unsubscribe = onSyncEvent(({ detail }) => {
+      if (detail.type === 'studentCreated' || detail.type === 'studentUpdated' || detail.type === 'studentDeleted') {
+        fetchStudents();
+      }
+      if (detail.type === 'facultyCreated' || detail.type === 'facultyUpdated' || detail.type === 'facultyDeleted') {
+        fetchFaculty();
+      }
+      if (detail.type === 'subjectCreated' || detail.type === 'subjectUpdated' || detail.type === 'subjectDeleted') {
+        fetchCourses();
+      }
+    });
 
     return () => {
       window.removeEventListener('studentsUpdated', onUpdated);
@@ -93,6 +108,7 @@ export const AdminDashboard: React.FC = () => {
       window.removeEventListener('eventsUpdated', onUpdated);
       window.removeEventListener('announcementsUpdated', onUpdated);
       window.removeEventListener('researchUpdated', onUpdated);
+      unsubscribe();
     };
   }, []);
 
@@ -107,12 +123,24 @@ export const AdminDashboard: React.FC = () => {
 
   const hasError = !!(studentsError || facultyError || coursesError || eventsError || announcementsError);
 
+  // Normalize related department names so they group together
+  const normalizeDept = (dept: string): string => {
+    const normalized = dept.trim().toLowerCase();
+    if (normalized === 'bsit' || normalized === 'information technology') {
+      return 'Information Technology';
+    }
+    if (normalized === 'bscs' || normalized === 'computer science') {
+      return 'Computer Science';
+    }
+    return dept.trim();
+  };
+
   // Calculate comprehensive statistics
   const departmentStats = useMemo(() => {
     const deptMap = new Map<string, { students: number; faculty: number }>();
 
     students?.forEach(student => {
-      const dept = student.program || 'Unknown';
+      const dept = normalizeDept(student.program || 'Unknown');
       if (!deptMap.has(dept)) {
         deptMap.set(dept, { students: 0, faculty: 0 });
       }
@@ -120,7 +148,7 @@ export const AdminDashboard: React.FC = () => {
     });
 
     faculty?.forEach(fac => {
-      const dept = fac.department || 'Unknown';
+      const dept = normalizeDept(fac.department || 'Unknown');
       if (!deptMap.has(dept)) {
         deptMap.set(dept, { students: 0, faculty: 0 });
       }

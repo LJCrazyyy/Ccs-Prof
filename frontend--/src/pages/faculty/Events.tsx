@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CalendarDays, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { facultyDB } from '../../lib/database';
 
 interface Event {
   id: string;
@@ -10,13 +11,34 @@ interface Event {
   location: string;
   type: string;
   isRegistered: boolean;
+  invitedStudents?: string[];
+  invited_students?: string[];
+}
+
+interface FacultyClass {
+  id: string;
+  courseCode?: string;
+  courseName?: string;
+  section?: string;
+}
+
+interface StudentOption {
+  id: string;
+  name?: string;
+  email?: string;
 }
 
 export const FacultyEvents: React.FC = () => {
   const { user } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
+  const [classes, setClasses] = useState<FacultyClass[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [invitingEventId, setInvitingEventId] = useState<string | null>(null);
+  const [selectedClassId, setSelectedClassId] = useState<string>('');
+  const [students, setStudents] = useState<StudentOption[]>([]);
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
+  const [inviting, setInviting] = useState(false);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -24,9 +46,7 @@ export const FacultyEvents: React.FC = () => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:8080/faculty/${user.id}/events`);
-        if (!response.ok) throw new Error('Failed to fetch events');
-        const data: Event[] = await response.json();
+        const data = await facultyDB.getFacultyEvents(user.id);
         const sorted = data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
         setEvents(sorted);
         setError(null);
@@ -40,16 +60,40 @@ export const FacultyEvents: React.FC = () => {
     fetchEvents();
   }, [user?.id]);
 
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchClasses = async () => {
+      try {
+        const data = await facultyDB.getFacultyClasses(user.id);
+        setClasses(data);
+      } catch {
+        setClasses([]);
+      }
+    };
+
+    fetchClasses();
+  }, [user?.id]);
+
+  const loadStudentsForClass = async (classId: string) => {
+    if (!user?.id || !classId) {
+      setStudents([]);
+      return;
+    }
+
+    try {
+      const data = await facultyDB.getClassStudents(classId);
+      setStudents(data);
+    } catch {
+      setStudents([]);
+    }
+  };
+
   const handleJoinEvent = async (eventId: string) => {
     if (!user?.id) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/faculty/${user.id}/events/${eventId}/join`, {
-        method: 'POST',
-      });
-
-      if (!response.ok) throw new Error('Failed to join event');
-      
+      await facultyDB.joinEvent(user.id, eventId);
       setEvents(
         events.map((event) =>
           event.id === eventId ? { ...event, isRegistered: true } : event
@@ -58,6 +102,40 @@ export const FacultyEvents: React.FC = () => {
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error joining event');
+    }
+  };
+
+  const openInviteModal = async (eventId: string) => {
+    setInvitingEventId(eventId);
+    setSelectedStudentIds([]);
+
+    const firstClassId = classes[0]?.id ?? '';
+    setSelectedClassId(firstClassId);
+
+    if (firstClassId) {
+      await loadStudentsForClass(firstClassId);
+    } else {
+      setStudents([]);
+    }
+  };
+
+  const handleInviteStudents = async () => {
+    if (!user?.id || !invitingEventId || selectedStudentIds.length === 0) {
+      setError('Select at least one student to invite.');
+      return;
+    }
+
+    try {
+      setInviting(true);
+      const updated = await facultyDB.inviteStudentsToEvent(user.id, invitingEventId, selectedStudentIds);
+      setEvents((previous) => previous.map((event) => (event.id === updated.id ? { ...event, ...updated } : event)));
+      setInvitingEventId(null);
+      setSelectedStudentIds([]);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error inviting students');
+    } finally {
+      setInviting(false);
     }
   };
 
@@ -95,6 +173,9 @@ export const FacultyEvents: React.FC = () => {
                     <CalendarDays size={20} />
                     <span>{new Date(event.date).toLocaleDateString()}</span>
                   </div>
+                  <span className="text-xs text-gray-500">
+                    Invited Students: {(event.invited_students ?? event.invitedStudents ?? []).length}
+                  </span>
                   {event.isRegistered ? (
                     <div className="flex items-center gap-1 text-green-600 font-semibold">
                       <CheckCircle size={20} />
@@ -108,10 +189,90 @@ export const FacultyEvents: React.FC = () => {
                       Join Event
                     </button>
                   )}
+                  <button
+                    onClick={() => openInviteModal(event.id)}
+                    className="border border-primary text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg text-sm"
+                  >
+                    Invite Students
+                  </button>
                 </div>
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {invitingEventId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white w-full max-w-2xl rounded-lg shadow-lg p-6 max-h-[80vh] overflow-y-auto">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Invite Students</h2>
+
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Class</label>
+              <select
+                value={selectedClassId}
+                onChange={async (e) => {
+                  const classId = e.target.value;
+                  setSelectedClassId(classId);
+                  setSelectedStudentIds([]);
+                  await loadStudentsForClass(classId);
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              >
+                <option value="">Select class</option>
+                {classes.map((cls) => (
+                  <option key={cls.id} value={cls.id}>
+                    {(cls.courseCode || 'N/A')} - {(cls.courseName || 'Untitled')} ({cls.section || 'Section N/A'})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="border border-gray-200 rounded-lg max-h-72 overflow-y-auto p-2">
+              {students.length === 0 ? (
+                <p className="text-sm text-gray-500 p-2">No students found for this class.</p>
+              ) : (
+                students.map((student) => (
+                  <label key={student.id} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedStudentIds.includes(student.id)}
+                      onChange={(e) => {
+                        setSelectedStudentIds((previous) =>
+                          e.target.checked
+                            ? [...previous, student.id]
+                            : previous.filter((id) => id !== student.id)
+                        );
+                      }}
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-gray-800">{student.name || student.id}</p>
+                      <p className="text-xs text-gray-500">{student.email || 'No email'}</p>
+                    </div>
+                  </label>
+                ))
+              )}
+            </div>
+
+            <div className="flex justify-between items-center mt-4">
+              <p className="text-sm text-gray-600">Selected: {selectedStudentIds.length}</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setInvitingEventId(null)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleInviteStudents}
+                  disabled={inviting}
+                  className="px-4 py-2 bg-primary text-white rounded-lg disabled:opacity-50"
+                >
+                  {inviting ? 'Sending...' : 'Send Invites'}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

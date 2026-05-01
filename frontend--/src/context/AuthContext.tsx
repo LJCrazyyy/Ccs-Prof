@@ -7,7 +7,9 @@ import {
   onAuthStateChanged,
   setPersistence,
   browserLocalPersistence,
+  getAuth as getAuthFromApp,
 } from 'firebase/auth';
+import { initializeApp, getApps, type FirebaseOptions } from 'firebase/app';
 import { auth, db, firebaseInitError } from '../lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
@@ -37,6 +39,22 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const firebaseConfig: FirebaseOptions = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+};
+
+const secondaryApp =
+  getApps().find((app) => app.name === 'signup-user-creator') ||
+  initializeApp(firebaseConfig, 'signup-user-creator');
+
+const secondaryAuth = getAuthFromApp(secondaryApp);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -71,7 +89,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
+    let userDocUnsubscribe: (() => void) | null = null;
+
     const unsubscribe = onAuthStateChanged(auth!, (currentUser) => {
+      if (userDocUnsubscribe) {
+        userDocUnsubscribe();
+        userDocUnsubscribe = null;
+      }
+
       try {
         if (currentUser) {
           setFirebaseUser(currentUser);
@@ -86,17 +111,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(basicUser);
           
           // Fetch full user data from Firestore in background (non-blocking)
-          getDoc(doc(db, 'users', currentUser.uid))
-            .then((userDoc) => {
-              if (userDoc.exists()) {
-                const userData = userDoc.data() as User;
-                setUser(userData); // Update with full Firestore data
-              }
-            })
-            .catch((err) => {
-              console.warn('Could not fetch Firestore user data (this is OK during initial login):', err);
-              // User is already set from Firebase Auth, so continue
-            });
+          if (db) {
+            getDoc(doc(db, 'users', currentUser.uid))
+              .then((userDoc) => {
+                if (userDoc.exists()) {
+                  const userData = userDoc.data() as User;
+                  setUser(userData); // Update with full Firestore data
+                }
+              })
+              .catch((err) => {
+                console.warn('Failed to load Firestore user profile:', err);
+              });
+          }
         } else {
           setFirebaseUser(null);
           setUser(null);
@@ -109,7 +135,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      if (userDocUnsubscribe) {
+        userDocUnsubscribe();
+      }
+    };
   }, []);
 
   const login = async (email: string, password: string): Promise<void> => {
@@ -119,18 +150,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw firebaseInitError;
       }
 
-      const result = await signInWithEmailAndPassword(auth!, email, password);
+      console.log('[AUTH] Attempting login for:', email);
       
-      // Fetch user data from Firestore
-      const userDoc = await getDoc(doc(db!, 'users', result.user.uid));
-      if (userDoc.exists()) {
-        const userData = userDoc.data() as User;
-        setUser(userData);
+      const result = await signInWithEmailAndPassword(auth!, email.trim(), password);
+      console.log('[AUTH] Login successful for:', email, 'UID:', result.user.uid);
+      
+      const signedInEmail = result.user.email || '';
+      const detectedRole = getUserRoleFromEmail(signedInEmail);
+      console.log('[AUTH] Detected role from email:', detectedRole);
+
+      if (db) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', result.user.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data() as User;
+            console.log('[AUTH] Found Firestore user doc, using stored data:', userData);
+            setUser(userData);
+            return;
+          } else {
+            console.log('[AUTH] No Firestore user doc found, using fallback');
+          }
+        } catch (dbErr) {
+          console.warn('[AUTH] Error fetching Firestore doc:', dbErr);
+        }
       }
+
+      const fallbackUser: User = {
+        id: result.user.uid,
+        name: result.user.displayName || signedInEmail.split('@')[0] || 'User',
+        email: signedInEmail,
+        role: detectedRole,
+        photoURL: result.user.photoURL || undefined,
+      };
+      console.log('[AUTH] Setting fallback user with role:', fallbackUser.role);
+      setUser(fallbackUser);
     } catch (err: any) {
-      const errorMessage = err.message || 'Login failed';
+      const errorCode = err?.code || '';
+      const errorMessage = err?.message || 'Login failed';
+      console.error('[AUTH] Login error - Code:', errorCode, 'Message:', errorMessage, 'Full error:', err);
       setError(errorMessage);
-      throw new Error(errorMessage);
+      throw err;
     }
   };
 
@@ -146,18 +205,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw firebaseInitError;
       }
 
-      const result = await createUserWithEmailAndPassword(auth!, email, password);
+      if (!db) {
+        throw new Error('Database is not initialized');
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const result = await createUserWithEmailAndPassword(secondaryAuth, normalizedEmail, password);
       
       // Create user document in Firestore
       const newUser: User = {
         id: result.user.uid,
-        name,
-        email,
+        name: name.trim(),
+        email: normalizedEmail,
         role,
       };
       
-      await setDoc(doc(db!, 'users', result.user.uid), newUser);
-      setUser(newUser);
+      await setDoc(doc(db, 'users', result.user.uid), newUser);
+
+      // Ensure account creation does not alter the active app session.
+      await firebaseSignOut(secondaryAuth);
     } catch (err: any) {
       const errorMessage = err.message || 'Signup failed';
       setError(errorMessage);

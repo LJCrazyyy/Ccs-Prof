@@ -1,11 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Trash2, Edit2, Search, Mail, CalendarPlus, BookOpen } from 'lucide-react';
+import { Trash2, Edit2, Search, Mail, CalendarPlus, BookOpen, Eye, EyeOff } from 'lucide-react';
 import { useAsync } from '../../hooks/useAsync';
 import { useForm } from '../../hooks/useAsync';
 import { useSearch } from '../../hooks/useAsync';
 import { usePagination } from '../../hooks/useAsync';
 import { facultyDB, studentDB, coursesDB, eventsDB } from '../../lib/database';
+import { auth, db } from '../../lib/firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { LoadingSpinner, ErrorMessage, EmptyState, FormInput, SectionHeader, Pagination, Card } from '../../components/ui/shared';
+import { emitSyncEvent } from '../../lib/syncEvents';
 
 interface Faculty {
   id: string | number;
@@ -42,6 +46,7 @@ interface Student {
 interface FacultyFormData {
   name: string;
   email: string;
+  password: string;
   department: string;
   specialization: string;
   phone: string;
@@ -52,6 +57,7 @@ interface FacultyFormData {
 const initialFormState: FacultyFormData = {
   name: '',
   email: '',
+  password: '',
   department: 'Computer Science',
   specialization: '',
   phone: '',
@@ -62,6 +68,7 @@ const initialFormState: FacultyFormData = {
 const validationSchema = {
   name: (value: string) => value.trim().length < 3 ? 'Name must be at least 3 characters' : '',
   email: (value: string) => !value.includes('@') ? 'Invalid email address' : '',
+  password: (value: string) => value.trim().length < 6 ? 'Password must be at least 6 characters' : '',
   department: (value: string) => value.trim().length === 0 ? 'Department is required' : '',
   specialization: (value: string) => value.trim().length === 0 ? 'Specialization is required' : '',
   phone: (value: string) => value.trim().length === 0 ? 'Phone is required' : '',
@@ -87,6 +94,8 @@ export const AdminFaculty: React.FC = () => {
   const [messageStudentId, setMessageStudentId] = useState('');
   const [messageSubject, setMessageSubject] = useState('');
   const [messageBody, setMessageBody] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data: facultyData, loading, error, execute: fetchFaculty } = useAsync<Faculty[]>(() =>
     facultyDB.getAllFaculty().then((data: any) => data as Faculty[])
@@ -152,6 +161,8 @@ export const AdminFaculty: React.FC = () => {
       qualifications: formData.qualifications.trim(),
     };
 
+    const normalizedPassword = formData.password.trim();
+
     if (
       !cleaned.name ||
       !cleaned.email ||
@@ -159,9 +170,10 @@ export const AdminFaculty: React.FC = () => {
       !cleaned.specialization ||
       !cleaned.phone ||
       !cleaned.office ||
-      !cleaned.qualifications
+      !cleaned.qualifications ||
+      (!editingId && !normalizedPassword)
     ) {
-      alert('Please complete all required faculty fields.');
+      alert('Please complete all required faculty fields and provide a password for new faculty accounts.');
       return;
     }
 
@@ -170,31 +182,77 @@ export const AdminFaculty: React.FC = () => {
       return;
     }
 
+    if (!editingId && normalizedPassword.length < 6) {
+      alert('Password is required for new faculty and must be at least 6 characters.');
+      return;
+    }
+
+    if (!db || !auth) {
+      alert('Authentication or database is not initialized.');
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
       if (editingId) {
         await facultyDB.updateFaculty(String(editingId), cleaned);
+
+        const userRef = doc(db, 'users', String(editingId));
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          await updateDoc(userRef, {
+            ...cleaned,
+            role: 'faculty',
+            updatedAt: new Date().toISOString(),
+          });
+        } else {
+          await setDoc(userRef, {
+            ...cleaned,
+            id: String(editingId),
+            role: 'faculty',
+            createdAt: new Date().toISOString(),
+          });
+        }
+
         const updated = faculty.map(f =>
           String(f.id) === String(editingId) ? { ...f, ...cleaned } : f
         );
         setFaculty(updated);
         setEditingId(null);
         window.dispatchEvent(new Event('facultyUpdated'));
+        emitSyncEvent('facultyUpdated', { id: editingId, ...cleaned }, 'Faculty');
         alert('Faculty updated successfully!');
       } else {
-        const id = await facultyDB.addFaculty({ ...cleaned });
+        const userCredential = await createUserWithEmailAndPassword(auth, cleaned.email, normalizedPassword);
+        const uid = userCredential.user.uid;
+
+        const facultyPayload = {
+          ...cleaned,
+          id: uid,
+          role: 'faculty',
+          createdAt: new Date().toISOString(),
+        };
+
+        await setDoc(doc(db, 'users', uid), facultyPayload);
+        await facultyDB.addFaculty(facultyPayload);
+
         const newFaculty: Faculty = {
           ...cleaned,
-          id,
+          id: uid,
         };
         setFaculty(prev => [...prev, newFaculty]);
         window.dispatchEvent(new Event('facultyUpdated'));
+        emitSyncEvent('facultyCreated', newFaculty, 'Faculty');
         alert('Faculty added successfully!');
       }
       reset();
       setShowForm(false);
+      setPasswordVisible(false);
     } catch (err: any) {
       console.error('faculty save error', err);
       alert(err?.message || 'Failed to save faculty');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -202,6 +260,7 @@ export const AdminFaculty: React.FC = () => {
     setFormData({
       name: f.name,
       email: f.email,
+      password: '',
       department: f.department,
       specialization: f.specialization,
       phone: f.phone || '',
@@ -219,6 +278,7 @@ export const AdminFaculty: React.FC = () => {
       await facultyDB.deleteFaculty(String(id));
       setFaculty(faculty.filter(f => String(f.id) !== String(id)));
       window.dispatchEvent(new Event('facultyUpdated'));
+      emitSyncEvent('facultyDeleted', { id }, 'Faculty');
       alert('Faculty deleted successfully!');
     } catch (err: any) {
       console.error('faculty delete error', err);
@@ -328,6 +388,7 @@ export const AdminFaculty: React.FC = () => {
     reset();
     setEditingId(null);
     setShowForm(false);
+    setPasswordVisible(false);
   };
 
   const hasValidationErrors = Object.values(errors).some(e => e);
@@ -367,6 +428,27 @@ export const AdminFaculty: React.FC = () => {
               onBlur={handleBlur}
               error={touched.email ? errors.email : ''}
             />
+            {!editingId && (
+              <div className="relative">
+                <FormInput
+                  label="Password"
+                  id="password"
+                  type={passwordVisible ? 'text' : 'password'}
+                  placeholder="Enter a secure password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.password ? errors.password : ''}
+                />
+                <button
+                  type="button"
+                  onClick={() => setPasswordVisible(!passwordVisible)}
+                  className="absolute right-3 top-10 text-gray-500"
+                >
+                  {passwordVisible ? 'Hide' : 'Show'}
+                </button>
+              </div>
+            )}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Department</label>
               <select
@@ -378,9 +460,6 @@ export const AdminFaculty: React.FC = () => {
               >
                 <option>Computer Science</option>
                 <option>Information Technology</option>
-                <option>Engineering</option>
-                <option>Business</option>
-                <option>Liberal Arts</option>
               </select>
               {touched.department && errors.department && (
                 <p className="text-red-600 text-xs font-medium mt-1">{errors.department}</p>
@@ -426,19 +505,48 @@ export const AdminFaculty: React.FC = () => {
               onBlur={handleBlur}
               error={touched.qualifications ? errors.qualifications : ''}
             />
-            <button
-              onClick={handleAddOrUpdate}
-              disabled={hasValidationErrors}
-              className="col-span-full md:col-span-1 bg-primary hover:bg-primary-dark disabled:bg-gray-300 text-white py-2 rounded-lg font-medium transition"
-            >
-              {editingId ? 'Update Faculty' : 'Add Faculty'}
-            </button>
-            <button
-              onClick={handleCancel}
-              className="col-span-full md:col-span-1 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 rounded-lg font-medium transition"
-            >
-              Cancel
-            </button>
+            {!editingId && (
+              <div className="flex flex-col">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 bg-white focus-within:ring-2 focus-within:ring-primary">
+                  <input
+                    id="password"
+                    type={passwordVisible ? 'text' : 'password'}
+                    placeholder="Create a password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className="flex-1 outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPasswordVisible(!passwordVisible)}
+                    className="text-gray-500"
+                    aria-label={passwordVisible ? 'Hide password' : 'Show password'}
+                  >
+                    {passwordVisible ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                {touched.password && errors.password && (
+                  <p className="text-red-600 text-xs font-medium mt-1">{errors.password}</p>
+                )}
+              </div>
+            )}
+            <div className="col-span-full flex flex-wrap gap-3 pt-2">
+              <button
+                onClick={handleAddOrUpdate}
+                disabled={hasValidationErrors || isSubmitting}
+                className="bg-primary hover:bg-primary-dark disabled:bg-gray-300 text-white px-6 py-2 rounded-xl font-semibold transition min-w-[170px]"
+              >
+                {isSubmitting ? 'Processing...' : editingId ? '✓ Update Faculty' : '✚ Add Faculty'}
+              </button>
+              <button
+                onClick={handleCancel}
+                className="bg-slate-500 hover:bg-slate-600 text-white px-6 py-2 rounded-xl font-semibold transition min-w-[130px]"
+              >
+                ✕ Cancel
+              </button>
+            </div>
           </div>
         </Card>
       )}
@@ -492,7 +600,7 @@ export const AdminFaculty: React.FC = () => {
               >
                 <option value="">Choose a subject</option>
                 {courses.map((course) => (
-                  <option key={course.id} value={course.name || course.code || ''}>
+                  <option key={course.id} value={String(course.id)}>
                     {course.code ? `${course.code} - ${course.name}` : course.name}
                   </option>
                 ))}

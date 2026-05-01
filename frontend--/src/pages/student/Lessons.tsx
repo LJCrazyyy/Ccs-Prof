@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BookOpen, Download, File } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { schedulesDB } from '../../lib/database';
 
 interface CourseMaterial {
   id: string;
@@ -31,21 +32,14 @@ export const StudentLessons: React.FC = () => {
       setError(null);
 
       try {
-        const response = await fetch(`http://localhost:8080/student/${user.id}/schedule`);
-        if (!response.ok) {
-          throw new Error('Failed to load schedule');
-        }
-
-        const data = await response.json();
-        
-        // Filter only classes with materials
-        const lessonsWithMaterials = data.enrolledClasses
-          .filter((cls: any) => cls.materials && cls.materials.length > 0)
+        const data = await schedulesDB.getStudentSchedule(user.id);
+        const lessonsWithMaterials = (data?.enrolledClasses ?? [])
+          .filter((cls: any) => Array.isArray(cls.materials) && cls.materials.length > 0)
           .map((cls: any) => ({
             classId: cls.classId,
             courseCode: cls.courseCode,
             courseName: cls.courseName,
-            materials: cls.materials || []
+            materials: cls.materials || [],
           }));
 
         setLessons(lessonsWithMaterials);
@@ -56,7 +50,7 @@ export const StudentLessons: React.FC = () => {
       }
     };
 
-    fetchLessons();
+    void fetchLessons();
   }, [user?.id]);
 
   if (loading) return <div className="text-center py-8">Loading lessons...</div>;

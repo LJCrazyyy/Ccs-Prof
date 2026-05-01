@@ -3,6 +3,7 @@ import { Award, Calendar, BookOpen, FileText, Bell, Clock, Link as LinkIcon, Use
 import { useAuth } from '../../context/AuthContext';
 import { ErrorMessage, EmptyState } from '../../components/ui/shared';
 import { Link } from 'react-router-dom';
+import { announcementsDB, schedulesDB, studentDB } from '../../lib/database';
 
 interface Event {
   id: string;
@@ -44,38 +45,25 @@ export const StudentDashboard: React.FC = () => {
       setError(null);
 
       try {
-        const [gradesRes, scheduleRes, eventsRes, researchRes, announcementsRes] = await Promise.all([
-          fetch(`http://localhost:8080/student/${user.id}/grades`),
-          fetch(`http://localhost:8080/student/${user.id}/schedule`),
-          fetch(`http://localhost:8080/student/${user.id}/events`),
-          fetch(`http://localhost:8080/student/${user.id}/research`),
-          fetch('http://localhost:8080/admin/announcements'),
+        const [gradesJson, scheduleJson, eventsJson, researchJson, announcementsJson] = await Promise.all([
+          studentDB.getStudentGrades(user.id),
+          schedulesDB.getStudentSchedule(user.id),
+          studentDB.getStudentEvents(user.id),
+          studentDB.getStudentResearch(user.id),
+          announcementsDB.getAllAnnouncements(),
         ]);
 
-        if (!gradesRes.ok) throw new Error('Failed to load grades');
-        if (!scheduleRes.ok) throw new Error('Failed to load schedule');
-        if (!eventsRes.ok) throw new Error('Failed to load events');
-        if (!researchRes.ok) throw new Error('Failed to load research');
-        if (!announcementsRes.ok) throw new Error('Failed to load announcements');
-
-        const gradesJson = await gradesRes.json();
-        const scheduleJson = await scheduleRes.json();
-        const eventsJson = await eventsRes.json();
-        const researchJson = await researchRes.json();
-        const announcementsJson = await announcementsRes.json();
-
         setGradesSummary(gradesJson);
-        setScheduleData(scheduleJson);
-        setEventsList(eventsJson);
-        setResearchList(researchJson);
-        setAnnouncements(announcementsJson);
+        setScheduleData(scheduleJson as { enrolledClasses: any[]; totalCourses: number });
+        setEventsList(eventsJson as Event[]);
+        setResearchList(researchJson as ResearchItem[]);
+        setAnnouncements(announcementsJson as Announcement[]);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load student data');
-      } finally {
       }
     };
 
-    fetchData();
+    void fetchData();
   }, [user?.id]);
 
   useEffect(() => {
@@ -83,15 +71,15 @@ export const StudentDashboard: React.FC = () => {
 
     const refreshStudentData = async () => {
       try {
-        const [eventsRes, researchRes, announcementsRes] = await Promise.all([
-          fetch(`http://localhost:8080/student/${user.id}/events`),
-          fetch(`http://localhost:8080/student/${user.id}/research`),
-          fetch('http://localhost:8080/admin/announcements'),
+        const [eventsJson, researchJson, announcementsJson] = await Promise.all([
+          studentDB.getStudentEvents(user.id),
+          studentDB.getStudentResearch(user.id),
+          announcementsDB.getAllAnnouncements(),
         ]);
 
-        if (eventsRes.ok) setEventsList(await eventsRes.json());
-        if (researchRes.ok) setResearchList(await researchRes.json());
-        if (announcementsRes.ok) setAnnouncements(await announcementsRes.json());
+        setEventsList(eventsJson as Event[]);
+        setResearchList(researchJson as ResearchItem[]);
+        setAnnouncements(announcementsJson as Announcement[]);
       } catch {
         // ignore refresh errors
       }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Users, BarChart3, BookOpen, FileText } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ErrorMessage, EmptyState } from '../../components/ui/shared';
+import { facultyDB } from '../../lib/database';
 
 interface Dashboard {
   faculty: { id: string; name: string; email: string };
@@ -32,9 +33,7 @@ export const FacultyDashboard: React.FC = () => {
     const fetchDashboard = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:8080/faculty/${user.id}/dashboard`);
-        if (!response.ok) throw new Error('Failed to fetch dashboard');
-        const data: Dashboard = await response.json();
+        const data = (await facultyDB.getFacultyDashboard(user.id)) as Dashboard;
         setDashboard(data);
         setError(null);
       } catch (err) {
@@ -47,9 +46,7 @@ export const FacultyDashboard: React.FC = () => {
 
     const fetchClasses = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/faculty/${user.id}/classes`);
-        if (!response.ok) throw new Error('Failed to fetch classes');
-        const data: Class[] = await response.json();
+        const data = (await facultyDB.getFacultyClasses(user.id)) as Class[];
         setClasses(data);
       } catch (err) {
         console.error('Error loading classes:', err);

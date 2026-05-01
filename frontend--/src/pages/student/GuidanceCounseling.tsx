@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { AlertTriangle, CheckCircle2, ClipboardList, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useAsync } from '../../hooks/useAsync';
-import { guidanceDB } from '../../lib/database';
+import { studentDB } from '../../lib/database';
 import { EmptyState, ErrorMessage } from '../../components/ui/shared';
 
 interface DisciplineRecord {
@@ -23,7 +23,7 @@ export const StudentGuidanceCounseling: React.FC = () => {
     error,
     execute,
   } = useAsync<DisciplineRecord[]>(() =>
-    guidanceDB.getStudentDisciplineRecords(user?.id, user?.email).then((data: any) => data as DisciplineRecord[])
+    studentDB.getDisciplineRecords({ studentId: user?.id, email: user?.email }) as Promise<DisciplineRecord[]>
   );
 
   useEffect(() => {
