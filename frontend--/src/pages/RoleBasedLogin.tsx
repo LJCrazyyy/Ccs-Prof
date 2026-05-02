@@ -13,6 +13,10 @@ const getErrorMessage = (errorCode: string): string => {
     'auth/too-many-requests': 'Too many failed login attempts. Please try again later.',
     'auth/operation-not-allowed': 'Login is currently unavailable. Please try again later.',
     'auth/network-request-failed': 'Network error. Please check your internet connection.',
+    'auth/api-key-not-valid.-please-pass-a-valid-api-key.':
+      'Firebase Auth is not configured correctly for this deployment. Check the Netlify environment variables and Firebase authorized domains.',
+    'auth/invalid-api-key':
+      'Firebase Auth is not configured correctly for this deployment. Check the Netlify environment variables and Firebase authorized domains.',
     'auth/internal-error': 'An error occurred. Please try again later.',
   };
   return errorMap[errorCode] || 'Login failed. Please check your email and password.';
