@@ -1,6 +1,5 @@
 export type DocumentData = Record<string, any>;
 
-import { getApiBase } from './api-base';
 import { db } from './firebase';
 import {
   arrayUnion,
@@ -15,7 +14,6 @@ import {
   where,
 } from 'firebase/firestore';
 
-const API_BASE = getApiBase();
 // Disable demo bypass in production builds — only allow in non-production modes
 const isProdBuild = (import.meta.env.MODE && String(import.meta.env.MODE) === 'production') || Boolean(import.meta.env.PROD);
 const isDemoBypassEnabled = !isProdBuild && String(import.meta.env.VITE_BYPASS_AUTH_DEMO ?? 'false').toLowerCase() !== 'false';
@@ -415,70 +413,32 @@ const buildScheduleDetails = async (studentId: string, classId: string) => {
   };
 };
 
-const buildQueryString = (params?: Record<string, any>) => {
-  if (!params || Object.keys(params).length === 0) return '';
-  const search = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && String(value).length > 0) {
-      search.append(key, String(value));
-    }
-  });
-  const query = search.toString();
-  return query ? `?${query}` : '';
-};
-
-const apiRequest = async <T>(path: string, options?: RequestInit): Promise<T> => {
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options?.headers || {}),
-    },
-    ...options,
-  });
-
-  if (!response.ok) {
-    const text = await response.text().catch(() => '');
-    throw new Error(text || `Request failed: ${response.status}`);
-  }
-
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
-  return response.json() as Promise<T>;
-};
-
-const normalizeCollection = (collectionName: string) => {
-  if (collectionName === 'disciplineRecords') return 'discipline-records';
-  return collectionName;
-};
-
 export const getDocument = async <T extends DocumentData>(
   collectionName: string,
   docId: string
 ): Promise<T | null> => {
-  try {
-    return await apiRequest<T>(`/admin/${normalizeCollection(collectionName)}/${docId}`);
-  } catch {
-    return null;
-  }
+  const firestoreDb = requireDb();
+  const snapshot = await getDoc(doc(firestoreDb, collectionName, docId));
+  if (!snapshot.exists()) return null;
+  return { id: snapshot.id, ...(snapshot.data() as Record<string, any>) } as T;
 };
 
 export const getCollection = async <T extends DocumentData>(
   collectionName: string
 ): Promise<T[]> => {
-  return apiRequest<T[]>(`/admin/${normalizeCollection(collectionName)}`);
+  const firestoreDb = requireDb();
+  const snapshot = await getDocs(collection(firestoreDb, collectionName));
+  return snapshot.docs.map((docItem) => ({ id: docItem.id, ...(docItem.data() as Record<string, any>) }) as T);
 };
 
 export const addDocument = async <T extends DocumentData>(
   collectionName: string,
   data: T
 ): Promise<string> => {
-  const created = await apiRequest<{ id: string }>(`/admin/${normalizeCollection(collectionName)}`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
-  return String(created.id);
+  const firestoreDb = requireDb();
+  const docRef = doc(collection(firestoreDb, collectionName));
+  await setDoc(docRef, { ...data, id: docRef.id });
+  return docRef.id;
 };
 
 export const updateDocument = async <T extends DocumentData>(
@@ -486,34 +446,29 @@ export const updateDocument = async <T extends DocumentData>(
   docId: string,
   data: Partial<T>
 ): Promise<void> => {
-  await apiRequest(`/admin/${normalizeCollection(collectionName)}/${docId}`, {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  });
+  const firestoreDb = requireDb();
+  await setDoc(doc(firestoreDb, collectionName, docId), data as DocumentData, { merge: true });
 };
 
 export const deleteDocument = async (
   collectionName: string,
   docId: string
 ): Promise<void> => {
-  await apiRequest(`/admin/${normalizeCollection(collectionName)}/${docId}`, {
-    method: 'DELETE',
-  });
+  const firestoreDb = requireDb();
+  await deleteDoc(doc(firestoreDb, collectionName, docId));
 };
 
 export const queryCollection = async <T extends DocumentData>(
   collectionName: string,
   conditions: Array<[string, string, any]>
 ): Promise<T[]> => {
-  const filters: Record<string, any> = {};
-  conditions.forEach(([field, operator, value]) => {
-    if (operator === '==') {
-      filters[field] = value;
-    }
-  });
+  const firestoreDb = requireDb();
+  const constraints = conditions
+    .filter(([, operator]) => operator === '==')
+    .map(([field, , value]) => where(field, '==', value));
 
-  const queryString = buildQueryString(filters);
-  return apiRequest<T[]>(`/admin/${normalizeCollection(collectionName)}${queryString}`);
+  const snapshot = await getDocs(query(collection(firestoreDb, collectionName), ...constraints));
+  return snapshot.docs.map((docItem) => ({ id: docItem.id, ...(docItem.data() as Record<string, any>) }) as T);
 };
 
 export const setDocument = async <T extends DocumentData>(
@@ -521,7 +476,8 @@ export const setDocument = async <T extends DocumentData>(
   docId: string,
   data: T
 ): Promise<void> => {
-  await updateDocument(collectionName, docId, data);
+  const firestoreDb = requireDb();
+  await setDoc(doc(firestoreDb, collectionName, docId), data, { merge: true });
 };
 
 export const updateDocumentFields = async <T extends Partial<DocumentData>>(
@@ -823,20 +779,41 @@ export const facultyDB = {
   updateFaculty: (facultyId: string, data: any) => updateDocument('faculties', facultyId, data),
   deleteFaculty: (facultyId: string) => deleteDocument('faculties', facultyId),
   assignSubject: async (facultyId: string, subject: string) =>
-    apiRequest(`/admin/faculty/${facultyId}/assign-subject`, {
-      method: 'PUT',
-      body: JSON.stringify({ subject }),
-    }),
+    (async () => {
+      const firestoreDb = requireDb();
+      const nextTimestamp = new Date().toISOString();
+      await setDoc(doc(firestoreDb, 'faculties', facultyId), {
+        subjectsAssigned: arrayUnion(subject),
+        updatedAt: nextTimestamp,
+        updated_at: nextTimestamp,
+      }, { merge: true });
+      return { facultyId, subject };
+    })(),
   assignEvent: async (facultyId: string, eventId: string) =>
-    apiRequest(`/admin/faculty/${facultyId}/assign-event`, {
-      method: 'PUT',
-      body: JSON.stringify({ event_id: eventId }),
-    }),
+    (async () => {
+      const firestoreDb = requireDb();
+      const nextTimestamp = new Date().toISOString();
+      await setDoc(doc(firestoreDb, 'faculties', facultyId), {
+        event_ids: arrayUnion(eventId),
+        eventIds: arrayUnion(eventId),
+        updatedAt: nextTimestamp,
+        updated_at: nextTimestamp,
+      }, { merge: true });
+      return { facultyId, eventId };
+    })(),
   messageStudent: async (payload: any) =>
-    apiRequest(`/admin/faculty/message-student`, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+    (async () => {
+      const firestoreDb = requireDb();
+      const nextTimestamp = new Date().toISOString();
+      const messageRef = doc(collection(firestoreDb, 'messages'));
+      await setDoc(messageRef, {
+        ...payload,
+        id: messageRef.id,
+        createdAt: nextTimestamp,
+        updatedAt: nextTimestamp,
+      });
+      return { id: messageRef.id };
+    })(),
   getFacultyEvents: async (facultyId: string) => {
     if (isDemoBypassEnabled) {
       return demoCollection('events').filter((event) =>
@@ -1552,7 +1529,15 @@ export const facultyDB = {
 
 export const adminDB = {
   getAdmin: (adminId: string) => getDocument('users', adminId),
-  getAllAdmins: () => apiRequest('/admin/users/admins'),
+  getAllAdmins: async () => {
+    if (isDemoBypassEnabled) {
+      return demoCollection('faculties').filter((entry) => String(entry.role || '') === 'admin');
+    }
+
+    const firestoreDb = requireDb();
+    const snapshot = await getDocs(query(collection(firestoreDb, 'users'), where('role', '==', 'admin')));
+    return snapshot.docs.map((docItem) => ({ id: docItem.id, ...(docItem.data() as Record<string, any>) }));
+  },
   updateAdmin: (adminId: string, data: any) => updateDocument('users', adminId, data),
   deleteAdmin: (adminId: string) => deleteDocument('users', adminId),
 };

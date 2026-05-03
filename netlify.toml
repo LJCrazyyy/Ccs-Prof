@@ -5,7 +5,6 @@
 
 [build.environment]
   NETLIFY_NEXT_PLUGIN_SKIP = "true"
-  VITE_API_BASE_URL = "https://itew6-project-1lhh.onrender.com"
   VITE_FIREBASE_API_KEY = "AIzaSyCbhD46ISwrSXbKmQ6nGIWDv4n5GXZcnDE"
   VITE_FIREBASE_AUTH_DOMAIN = "cscs-9ec17.firebaseapp.com"
   VITE_FIREBASE_PROJECT_ID = "cscs-9ec17"

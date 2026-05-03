@@ -1,7 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { UserX } from 'lucide-react';
 import { Card, SectionHeader, LoadingSpinner, ErrorMessage, SuccessMessage } from '../../components/ui/shared';
-import { fetchApiWithFallback } from '../../lib/api';
+import { adminDB } from '../../lib/database';
+import { db } from '../../lib/firebase';
+import { createUserWithEmailAndPassword, getAuth as getAuthFromApp, signOut as firebaseSignOut } from 'firebase/auth';
+import { initializeApp, getApps, type FirebaseOptions } from 'firebase/app';
+import { doc, setDoc } from 'firebase/firestore';
+
+const firebaseConfig: FirebaseOptions = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+};
+
+const secondaryApp =
+  getApps().find((app) => app.name === 'admin-creator') ||
+  initializeApp(firebaseConfig, 'admin-creator');
+
+const secondaryAuth = getAuthFromApp(secondaryApp);
 
 interface User {
   id: string;
@@ -36,13 +56,7 @@ export const AdminUsers: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetchApiWithFallback('/api/admin/users/admins');
-      if (!response.ok) {
-        const message = await response.text();
-        throw new Error(message || 'Failed to fetch admin users');
-      }
-
-      const adminUsers = await response.json();
+      const adminUsers = await adminDB.getAllAdmins();
       setUsers(Array.isArray(adminUsers) ? adminUsers : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch users');
@@ -61,29 +75,22 @@ export const AdminUsers: React.FC = () => {
 
     try {
       setError(null);
-      const response = await fetchApiWithFallback('/api/auth/create-admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          email: formData.email.trim().toLowerCase(),
-          password: formData.password,
-        }),
-      });
+      const normalizedEmail = formData.email.trim().toLowerCase();
+      const createdAdmin = await createUserWithEmailAndPassword(secondaryAuth, normalizedEmail, formData.password);
 
-      if (!response.ok) {
-        const message = await response.text();
-        throw new Error(message || 'Failed to create admin user');
-      }
-
-      const createdAdmin = await response.json();
       const userData: User = {
-        id: createdAdmin.uid,
+        id: createdAdmin.user.uid,
         name: formData.name.trim(),
-        email: formData.email.trim().toLowerCase(),
+        email: normalizedEmail,
         role: 'admin',
         createdAt: new Date().toISOString(),
       };
+
+      if (db) {
+        await setDoc(doc(db, 'users', createdAdmin.user.uid), userData);
+      }
+
+      await firebaseSignOut(secondaryAuth);
       setSuccess('Admin created successfully. Use these credentials to sign in.');
       setShowForm(false);
       resetForm();
