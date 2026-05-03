@@ -580,7 +580,7 @@ export const AdminScheduling: React.FC = () => {
               </select>
               {formErrors.section && <p className="text-red-600 text-xs mt-1">{formErrors.section}</p>}
               {!formData.department || !formData.yearLevel ? (
-                <p className="text-xs text-amber-600 mt-1">
+                <p className="text-xs text-teal-600 mt-1">
                   Please select department and year level first
                 </p>
               ) : (
@@ -593,7 +593,7 @@ export const AdminScheduling: React.FC = () => {
                         Using pre-assigned sections for this subject
                       </p>
                     ) : (
-                      <p className="text-xs text-amber-600 mt-1">
+                      <p className="text-xs text-teal-600 mt-1">
                         Showing sections for {formData.department} Year {formData.yearLevel}
                       </p>
                     );

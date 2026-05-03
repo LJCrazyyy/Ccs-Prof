@@ -124,32 +124,47 @@ export const RoleBasedLogin: React.FC<StudentLoginProps> = ({ role, roleLabel })
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-white via-orange-50 to-orange-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-main flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-orange-700 font-medium">Signing in...</p>
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-teal-800 font-medium">Signing in...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-orange-50 to-orange-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-main flex items-center justify-center p-4 md:p-8">
+      <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-white/60 bg-white/75 shadow-2xl shadow-slate-900/10 backdrop-blur md:grid-cols-2">
+        <div className="hidden bg-teal-900 p-10 text-white md:flex md:flex-col md:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.25em] text-teal-200">Role Portal</p>
+            <h2 className="mt-3 text-4xl font-bold leading-tight">{roleLabel} Access</h2>
+            <p className="mt-4 text-teal-100">
+              Secure sign-in for the {roleLabel.toLowerCase()} workspace.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-teal-700 bg-teal-800/60 p-4">
+            <p className="text-xs uppercase tracking-wide text-teal-200">Institution</p>
+            <p className="mt-1 text-lg font-semibold">College of Computing Studies</p>
+          </div>
+        </div>
+
+        <div className="p-6 md:p-10">
         <button
           onClick={() => navigate('/role-selection')}
-          className="mb-6 flex items-center gap-2 text-orange-700 hover:text-orange-900 font-medium transition"
+          className="mb-6 flex items-center gap-2 text-teal-700 hover:text-teal-900 font-semibold transition"
         >
           <ArrowLeft size={20} />
           Back to Roles
         </button>
 
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-orange-900 mb-2">{roleLabel} Login</h1>
-          <p className="text-orange-700">Sign in to your {roleLabel.toLowerCase()} account</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">{roleLabel} Login</h1>
+          <p className="text-slate-600">Sign in to your {roleLabel.toLowerCase()} account</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-2xl p-8 mb-6 border border-orange-100">
+        <div className="bg-white/90 rounded-2xl shadow-lg p-6 mb-6 border border-teal-100">
           {generalError && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex gap-3">
               <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={18} />
@@ -162,14 +177,14 @@ export const RoleBasedLogin: React.FC<StudentLoginProps> = ({ role, roleLabel })
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-orange-900 mb-2">Email Address</label>
+              <label className="block text-sm font-semibold text-slate-800 mb-2">Email Address</label>
               <input
                 type="email"
                 value={email}
                 onChange={handleEmailChange}
                 onBlur={handleEmailBlur}
                 className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 outline-none transition ${
-                  emailError ? 'border-red-300 focus:ring-red-200 bg-red-50' : 'border-orange-200 focus:ring-orange-300 focus:border-orange-400'
+                  emailError ? 'border-red-300 focus:ring-red-200 bg-red-50' : 'border-slate-200 focus:ring-teal-200 focus:border-teal-400'
                 }`}
                 placeholder="your.email@example.com"
               />
@@ -181,14 +196,14 @@ export const RoleBasedLogin: React.FC<StudentLoginProps> = ({ role, roleLabel })
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-orange-900 mb-2">Password</label>
+              <label className="block text-sm font-semibold text-slate-800 mb-2">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={handlePasswordChange}
                 onBlur={handlePasswordBlur}
                 className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 outline-none transition ${
-                  passwordError ? 'border-red-300 focus:ring-red-200 bg-red-50' : 'border-orange-200 focus:ring-orange-300 focus:border-orange-400'
+                  passwordError ? 'border-red-300 focus:ring-red-200 bg-red-50' : 'border-slate-200 focus:ring-teal-200 focus:border-teal-400'
                 }`}
                 placeholder="••••••••"
               />
@@ -202,16 +217,15 @@ export const RoleBasedLogin: React.FC<StudentLoginProps> = ({ role, roleLabel })
             <button
               type="submit"
               disabled={authLoading}
-              className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-3 rounded-lg transition-colors mt-4 disabled:opacity-50"
+              className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-3 rounded-lg transition-colors mt-4 disabled:opacity-50"
             >
               Sign In
             </button>
           </form>
         </div>
 
-        {/* Demo Accounts Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 border border-orange-100">
-          <h3 className="text-sm font-semibold text-orange-900 mb-4 text-center uppercase tracking-wider">Demo {roleLabel} Account</h3>
+        <div className="bg-white/90 rounded-2xl shadow-sm p-5 border border-slate-200">
+          <h3 className="text-sm font-semibold text-slate-800 mb-4 text-center uppercase tracking-wider">Demo {roleLabel} Account</h3>
           <button
             onClick={() =>
               quickLogin({
@@ -219,10 +233,11 @@ export const RoleBasedLogin: React.FC<StudentLoginProps> = ({ role, roleLabel })
                 password: role === 'student' ? 'student123' : role === 'faculty' ? 'faculty123' : 'admin123',
               })
             }
-            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-2.5 rounded-lg text-sm font-medium transition shadow-md hover:shadow-lg transform hover:scale-105"
+            className="w-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-lg text-sm font-medium transition shadow-md"
           >
             Quick {roleLabel} Login
           </button>
+        </div>
         </div>
       </div>
     </div>

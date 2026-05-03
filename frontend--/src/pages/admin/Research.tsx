@@ -512,7 +512,7 @@ export const AdminResearch: React.FC = () => {
                       {item.advisers?.map((adviserId) => {
                         const adviser = facultyOptions.find((f) => f.id === adviserId);
                         return (
-                          <span key={adviserId} className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded">
+                          <span key={adviserId} className="bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded">
                             {adviser?.name || adviserId}
                           </span>
                         );

@@ -424,7 +424,7 @@ export const AdminStudents: React.FC = () => {
             {!editingId && (
               <div className="flex flex-col">
                 <label className="text-sm font-semibold mb-1 text-gray-700">Password <span className="text-red-500">*</span></label>
-                <div className="flex items-center border p-2 rounded-lg bg-white focus-within:ring-2 focus-within:ring-orange-500">
+                <div className="flex items-center border p-2 rounded-lg bg-white focus-within:ring-2 focus-within:ring-teal-500">
                   <input
                     type={passwordVisible ? 'text' : 'password'}
                     id="password"
@@ -448,7 +448,7 @@ export const AdminStudents: React.FC = () => {
                 id="section"
                 value={formData.section}
                 onChange={handleChange}
-                className="border p-2 rounded-lg bg-white outline-none focus:ring-2 focus:ring-orange-500"
+                className="border p-2 rounded-lg bg-white outline-none focus:ring-2 focus:ring-teal-500"
                 disabled={!formData.year}
               >
                 <option value="">Select Section</option>
@@ -469,7 +469,7 @@ export const AdminStudents: React.FC = () => {
                 id="program"
                 value={formData.program}
                 onChange={handleProgramChange}
-                className="border p-2 rounded-lg bg-white outline-none focus:ring-2 focus:ring-orange-500"
+                className="border p-2 rounded-lg bg-white outline-none focus:ring-2 focus:ring-teal-500"
               >
                 <option value="BSCS">BSCS (Bachelor of Science in Computer Science)</option>
                 <option value="BSIT">BSIT (Bachelor of Science in Information Technology)</option>
@@ -478,7 +478,7 @@ export const AdminStudents: React.FC = () => {
 
             <div className="flex flex-col">
               <label className="text-sm font-semibold mb-1 text-gray-700">Year Level</label>
-              <select id="year" value={formData.year} onChange={handleYearChange} className="border p-2 rounded-lg bg-white outline-none focus:ring-2 focus:ring-orange-500">
+              <select id="year" value={formData.year} onChange={handleYearChange} className="border p-2 rounded-lg bg-white outline-none focus:ring-2 focus:ring-teal-500">
                 <option value="1st">1st Year</option>
                 <option value="2nd">2nd Year</option>
                 <option value="3rd">3rd Year</option>
@@ -488,7 +488,7 @@ export const AdminStudents: React.FC = () => {
 
             <div className="flex flex-col">
               <label className="text-sm font-semibold mb-1 text-gray-700">Status</label>
-              <select id="status" value={formData.status} onChange={handleChange} className="border p-2 rounded-lg bg-white font-semibold outline-none focus:ring-2 focus:ring-orange-500">
+              <select id="status" value={formData.status} onChange={handleChange} className="border p-2 rounded-lg bg-white font-semibold outline-none focus:ring-2 focus:ring-teal-500">
                 <option value="Regular">Regular</option>
                 <option value="Irregular">Irregular</option>
               </select>
@@ -501,7 +501,7 @@ export const AdminStudents: React.FC = () => {
               <button
                 onClick={handleAddOrUpdate}
                 disabled={isSubmitting}
-                className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 text-white px-8 py-2.5 rounded-lg font-bold transition"
+                className="bg-teal-600 hover:bg-teal-700 disabled:bg-gray-400 text-white px-8 py-2.5 rounded-lg font-bold transition"
               >
                 {isSubmitting ? '⏳ Processing...' : editingId ? '✓ Save Changes' : '✚ Create Student'}
               </button>
@@ -523,14 +523,14 @@ export const AdminStudents: React.FC = () => {
           <input
             type="text"
             placeholder="Search by Name, ID, or Program..."
-            className="w-full pl-10 pr-4 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full pl-10 pr-4 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-teal-500"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-          <select value={yearFilter} onChange={(e) => setYearFilter(e.target.value)} className="border p-2 rounded-xl bg-white outline-none focus:ring-2 focus:ring-orange-500">
+          <select value={yearFilter} onChange={(e) => setYearFilter(e.target.value)} className="border p-2 rounded-xl bg-white outline-none focus:ring-2 focus:ring-teal-500">
             <option value="All">All Year Levels</option>
             <option value="1st">1st Year</option>
             <option value="2nd">2nd Year</option>
@@ -538,13 +538,13 @@ export const AdminStudents: React.FC = () => {
             <option value="4th">4th Year</option>
           </select>
 
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border p-2 rounded-xl bg-white outline-none focus:ring-2 focus:ring-orange-500">
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border p-2 rounded-xl bg-white outline-none focus:ring-2 focus:ring-teal-500">
             <option value="All">All Status</option>
             <option value="Regular">Regular</option>
             <option value="Irregular">Irregular</option>
           </select>
 
-          <select value={skillFilter} onChange={(e) => setSkillFilter(e.target.value)} className="border p-2 rounded-xl bg-white outline-none focus:ring-2 focus:ring-orange-500">
+          <select value={skillFilter} onChange={(e) => setSkillFilter(e.target.value)} className="border p-2 rounded-xl bg-white outline-none focus:ring-2 focus:ring-teal-500">
             <option value="All">All Skills</option>
             {skillOptions.map((skill) => (
               <option key={skill} value={skill}>
@@ -556,7 +556,7 @@ export const AdminStudents: React.FC = () => {
           <select
             value={organizationFilter}
             onChange={(e) => setOrganizationFilter(e.target.value)}
-            className="border p-2 rounded-xl bg-white outline-none focus:ring-2 focus:ring-orange-500"
+            className="border p-2 rounded-xl bg-white outline-none focus:ring-2 focus:ring-teal-500"
           >
             <option value="All">All Organizations</option>
             {organizationOptions.map((organization) => (
@@ -591,7 +591,7 @@ export const AdminStudents: React.FC = () => {
                     <div className="text-gray-400">{s.year} Year</div>
                   </td>
                   <td className="p-4">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${s.status === 'Irregular' ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'}`}>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${s.status === 'Irregular' ? 'bg-teal-100 text-teal-600' : 'bg-green-100 text-green-600'}`}>
                       {s.status}
                     </span>
                   </td>
@@ -609,7 +609,7 @@ export const AdminStudents: React.FC = () => {
                     </button>
                     <button 
                       onClick={() => handleEdit(s)} 
-                      className="text-amber-600 hover:text-amber-800 hover:bg-amber-50 p-2 rounded-lg transition-colors font-medium text-sm" 
+                      className="text-teal-600 hover:text-teal-800 hover:bg-teal-50 p-2 rounded-lg transition-colors font-medium text-sm" 
                       title="Edit"
                     >
                       ✏️ Edit
@@ -675,14 +675,14 @@ export const AdminStudents: React.FC = () => {
       {viewingStudent && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="bg-gradient-to-r from-orange-600 to-orange-400 p-6 text-white flex justify-between items-center">
+            <div className="bg-gradient-to-r from-teal-600 to-teal-400 p-6 text-white flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <div className="bg-white/20 p-3 rounded-full">
                   <User size={32} />
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold">{viewingStudent.name}</h2>
-                  <p className="text-orange-100 text-sm">ID: {viewingStudent.idNumber}</p>
+                  <p className="text-teal-100 text-sm">ID: {viewingStudent.idNumber}</p>
                 </div>
               </div>
               <button onClick={() => setViewingStudent(null)} className="hover:bg-white/10 p-2 rounded-full transition">
@@ -707,7 +707,7 @@ export const AdminStudents: React.FC = () => {
               </div>
               <div>
                 <p className="text-xs uppercase text-gray-400 font-bold mb-2">✓ Status</p>
-                <span className={`px-3 py-1 rounded-full text-xs font-bold ${viewingStudent.status === 'Irregular' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}>
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${viewingStudent.status === 'Irregular' ? 'bg-teal-100 text-teal-700' : 'bg-green-100 text-green-700'}`}>
                   {viewingStudent.status}
                 </span>
               </div>
@@ -735,7 +735,7 @@ export const AdminStudents: React.FC = () => {
             <div className="bg-gray-50 p-4 flex justify-end gap-3 border-t">
               <button 
                 onClick={() => handleEdit(viewingStudent)} 
-                className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg font-bold transition"
+                className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg font-bold transition"
               >
                 ✏️ Edit Student
               </button>

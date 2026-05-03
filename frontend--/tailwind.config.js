@@ -7,14 +7,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#FF9500',
-        'primary-dark': '#E88800',
-        secondary: '#FFFFFF',
-        'dark-bg': '#1F1F1F',
-        'light-text': '#333333',
+        primary: '#0f766e',
+        'primary-dark': '#0b5f59',
+        secondary: '#f8fbfa',
+        accent: '#0f766e',
+        'dark-bg': '#123331',
+        'light-text': '#1f2937',
       },
       backgroundImage: {
-        'gradient-main': 'linear-gradient(to right, #FFFFFF, #FFD699)',
+        'gradient-main': 'linear-gradient(135deg, #f6fbfb 0%, #dbeeea 45%, #e6f3f1 100%)',
       },
     },
   },

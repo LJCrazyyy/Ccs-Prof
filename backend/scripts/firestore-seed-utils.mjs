@@ -109,8 +109,10 @@ const ensureAdminApp = () => {
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   const privateKey = process.env.FIREBASE_PRIVATE_KEY;
-  const shouldUseEmulator = String(process.env.FIREBASE_USE_EMULATOR ?? '').toLowerCase() === 'true';
-  const emulatorHost = process.env.FIRESTORE_EMULATOR_HOST;
+  const shouldUseEmulator =
+    String(process.env.FIREBASE_USE_EMULATOR ?? '').toLowerCase() === 'true' ||
+    Boolean(process.env.FIRESTORE_EMULATOR_HOST);
+  const emulatorHost = process.env.FIRESTORE_EMULATOR_HOST || '127.0.0.1:8081';
   const hasServiceAccountEnv = Boolean(clientEmail && privateKey);
   const hasGoogleCredentialsPath = Boolean(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 
@@ -119,12 +121,9 @@ const ensureAdminApp = () => {
   }
 
   if (shouldUseEmulator) {
-    if (!emulatorHost) {
-      throw new Error('FIREBASE_USE_EMULATOR is true but FIRESTORE_EMULATOR_HOST is missing');
-    }
-
     admin.initializeApp({ projectId });
     process.env.FIRESTORE_EMULATOR_HOST = emulatorHost;
+    process.env.FIREBASE_AUTH_EMULATOR_HOST = process.env.FIREBASE_AUTH_EMULATOR_HOST || '127.0.0.1:9099';
     return admin.firestore();
   }
 

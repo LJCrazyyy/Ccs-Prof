@@ -211,7 +211,7 @@ export const StudentSchedule: React.FC = () => {
                     type="button"
                     onClick={() => setSelectedClassId(item.classId)}
                     className={`w-full rounded-lg border p-4 text-left transition ${
-                      isActive ? 'border-primary bg-orange-50 shadow-sm' : 'border-gray-200 bg-white hover:bg-gray-50'
+                      isActive ? 'border-primary bg-teal-50 shadow-sm' : 'border-gray-200 bg-white hover:bg-gray-50'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">

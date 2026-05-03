@@ -5,6 +5,11 @@
     "type": "module",
     "scripts": {
         "dev": "node src/server.js",
+        "dev:emulator": "firebase emulators:exec --only firestore,auth --import ./data/emulator --export-on-exit ./data/emulator \"node src/server.js\"",
+        "emulator:start": "firebase emulators:start --only firestore,auth --import ./data/emulator --export-on-exit ./data/emulator",
+        "emulator:seed:all": "firebase emulators:exec --only firestore,auth --import ./data/emulator --export-on-exit ./data/emulator \"node scripts/seed-and-generate-users.mjs\"",
+        "emulator:create-prof": "firebase emulators:exec --only firestore,auth --import ./data/emulator --export-on-exit ./data/emulator \"node scripts/create-prof-account.mjs\"",
+        "seed:create-prof": "node scripts/create-prof-account.mjs",
         "build": "npm install && vite build",
         "start": "node src/server.js",
         "seed:test-students": "node scripts/generate-test-student-data.mjs",

@@ -166,7 +166,7 @@ export const AdminDashboard: React.FC = () => {
     { label: 'Total Students', value: students?.length || 0, icon: Users, color: 'bg-blue-500' },
     { label: 'Total Faculty', value: faculty?.length || 0, icon: Users2, color: 'bg-green-500' },
     { label: 'Active Classes', value: courses?.length || 0, icon: BookOpen, color: 'bg-purple-500' },
-    { label: 'Total Programs', value: departmentStats.length || 0, icon: BarChart3, color: 'bg-orange-500' },
+    { label: 'Total Programs', value: departmentStats.length || 0, icon: BarChart3, color: 'bg-teal-500' },
     { label: 'Events', value: events?.length || 0, icon: Calendar, color: 'bg-red-500' },
     { label: 'Announcements', value: announcements?.length || 0, icon: FileText, color: 'bg-indigo-500' },
   ];
@@ -301,7 +301,7 @@ export const AdminDashboard: React.FC = () => {
             </button>
             <button
               onClick={() => navigate('/dashboard/admin/research')}
-              className="w-full inline-flex items-center justify-between bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-lg transition shadow-md shadow-orange-100"
+              className="w-full inline-flex items-center justify-between bg-teal-500 hover:bg-teal-600 text-white py-3 px-4 rounded-lg transition shadow-md shadow-teal-100"
             >
               <div className="flex items-center gap-2">
                 <Plus size={16} /> Add Research

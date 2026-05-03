@@ -43,15 +43,15 @@ export const App: React.FC = () => {
   if (firebaseInitError) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
-        <div className="w-full max-w-2xl rounded-3xl border border-orange-200 bg-white p-10 shadow-xl">
-          <h1 className="text-3xl font-bold text-orange-900 mb-4">Firebase configuration required</h1>
+        <div className="w-full max-w-2xl rounded-3xl border border-teal-200 bg-white p-10 shadow-xl">
+          <h1 className="text-3xl font-bold text-teal-900 mb-4">Firebase configuration required</h1>
           <p className="text-gray-700 leading-relaxed">
             The app cannot start because Firebase environment variables are missing or incomplete.
             Create a <span className="font-semibold">frontend--/.env.local</span> file using the
             values shown below, then restart the app.
           </p>
           <div className="mt-8 rounded-2xl bg-slate-950 p-6 text-slate-100">
-            <p className="text-sm font-medium text-amber-300 mb-4">Required keys:</p>
+            <p className="text-sm font-medium text-teal-300 mb-4">Required keys:</p>
             <pre className="text-xs leading-6 whitespace-pre-wrap">{firebaseInitError.message}</pre>
           </div>
           <p className="mt-6 text-sm text-gray-500">

@@ -155,7 +155,7 @@ export const StudentDashboard: React.FC = () => {
               <p className="text-gray-600 text-sm">Research Papers</p>
               <p className="text-3xl font-bold text-gray-800 mt-2">{researchPapers}</p>
             </div>
-            <FileText className="text-orange-500" size={32} />
+            <FileText className="text-teal-500" size={32} />
           </div>
         </Link>
       </div>
@@ -277,9 +277,9 @@ export const StudentDashboard: React.FC = () => {
             <BookOpen className="mx-auto mb-2 text-indigo-600" size={24} />
             <p className="font-semibold text-indigo-800">Lessons</p>
           </Link>
-          <Link to="/dashboard/student/guidance-counseling" className="p-3 bg-orange-50 rounded-lg text-center hover:bg-orange-100 transition-colors">
-            <ShieldAlert className="mx-auto mb-2 text-orange-600" size={24} />
-            <p className="font-semibold text-orange-800">Guidance</p>
+          <Link to="/dashboard/student/guidance-counseling" className="p-3 bg-teal-50 rounded-lg text-center hover:bg-teal-100 transition-colors">
+            <ShieldAlert className="mx-auto mb-2 text-teal-600" size={24} />
+            <p className="font-semibold text-teal-800">Guidance</p>
           </Link>
         </div>
       </div>

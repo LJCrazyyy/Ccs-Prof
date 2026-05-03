@@ -210,7 +210,7 @@ export const StudentProfile: React.FC = () => {
             <div
               style={{
                 ...styles.avatarFrame,
-                border: isEditing ? (isDragging ? '3px solid #fb923c' : '3px dashed #cbd5e1') : 'none',
+                border: isEditing ? (isDragging ? '3px solid #0f766e' : '3px dashed #cbd5e1') : 'none',
               }}
               onDragOver={isEditing ? (event) => { event.preventDefault(); setIsDragging(true); } : undefined}
               onDragLeave={isEditing ? () => setIsDragging(false) : undefined}
@@ -271,7 +271,7 @@ export const StudentProfile: React.FC = () => {
       <main style={styles.formContainer}>
         <div style={styles.grid}>
           <section style={styles.gridCard}>
-            <h3 style={styles.cardHeader}><User size={18} color="#f97316" /> Identity Profile</h3>
+            <h3 style={styles.cardHeader}><User size={18} color="#0f766e" /> Identity Profile</h3>
             <div style={styles.inputStack}>
               <div style={styles.field}>
                 <label style={styles.label}>Full Legal Name</label>
@@ -300,7 +300,7 @@ export const StudentProfile: React.FC = () => {
           </section>
 
           <section style={styles.gridCard}>
-            <h3 style={styles.cardHeader}><Mail size={18} color="#f97316" /> Communication</h3>
+            <h3 style={styles.cardHeader}><Mail size={18} color="#0f766e" /> Communication</h3>
             <div style={styles.inputStack}>
               <div style={styles.field}>
                 <label style={styles.label}>Institutional Email</label>
@@ -333,7 +333,7 @@ export const StudentProfile: React.FC = () => {
           </section>
 
           <section style={styles.gridCard}>
-            <h3 style={styles.cardHeader}><GraduationCap size={18} color="#f97316" /> Academic Details</h3>
+            <h3 style={styles.cardHeader}><GraduationCap size={18} color="#0f766e" /> Academic Details</h3>
             <div style={styles.inputStack}>
               <div style={styles.field}>
                 <label style={styles.label}>Program</label>
@@ -366,7 +366,7 @@ export const StudentProfile: React.FC = () => {
           </section>
 
           <section style={styles.gridCard}>
-            <h3 style={styles.cardHeader}><Code size={18} color="#f97316" /> Development & Tech Stack</h3>
+            <h3 style={styles.cardHeader}><Code size={18} color="#0f766e" /> Development & Tech Stack</h3>
             <div style={styles.inputStack}>
               <div style={styles.field}>
                 <label style={styles.label}>Core Competencies</label>
@@ -437,8 +437,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: '#fff7ed',
-    color: '#ea580c',
+    background: '#ccfbf1',
+    color: '#0f766e',
     fontSize: '32px',
     fontWeight: 800,
   },
@@ -486,17 +486,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    background: '#fb923c',
+    background: '#0f766e',
     border: '1px solid #e2e8f0',
     padding: '12px 20px',
     borderRadius: '14px',
     fontWeight: 700,
-    color: '#fff7ed',
+    color: '#f0fdfa',
     cursor: 'pointer',
     boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)',
   },
   buttonSet: { display: 'flex', gap: '12px' },
-  primaryBtn: { background: '#fb923c', color: '#fff', border: 'none', padding: '12px 24px', borderRadius: '14px', fontWeight: 700, cursor: 'pointer' },
+  primaryBtn: { background: '#0f766e', color: '#fff', border: 'none', padding: '12px 24px', borderRadius: '14px', fontWeight: 700, cursor: 'pointer' },
   ghostBtn: { background: '#f1f5f9', color: '#475569', border: 'none', padding: '12px 24px', borderRadius: '14px', fontWeight: 700, cursor: 'pointer' },
   formContainer: { width: '100%' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '3rem' },
@@ -506,7 +506,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   field: { display: 'flex', flexDirection: 'column', gap: '8px' },
   label: { fontSize: '13px', fontWeight: 700, color: '#64748b' },
   inputBase: { padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#f8fafc', color: '#1e293b', fontSize: '15px' },
-  inputFocus: { padding: '14px', borderRadius: '12px', border: '2px solid #fb923c', background: '#fff', outline: 'none', fontSize: '15px' },
+  inputFocus: { padding: '14px', borderRadius: '12px', border: '2px solid #0f766e', background: '#fff', outline: 'none', fontSize: '15px' },
   inputLocked: { padding: '14px', borderRadius: '12px', border: '1px solid #f1f5f9', background: '#f1f5f9', color: '#94a3b8', cursor: 'not-allowed' },
   inputIconWrapper: { position: 'relative', display: 'flex', alignItems: 'center' },
   innerIcon: { position: 'absolute', left: '14px', color: '#94a3b8' },

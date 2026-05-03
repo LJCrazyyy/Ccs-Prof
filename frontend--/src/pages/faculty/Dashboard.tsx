@@ -66,7 +66,7 @@ export const FacultyDashboard: React.FC = () => {
     { label: 'Classes Teaching', value: courseCount, icon: Users, color: 'bg-blue-500' },
     { label: 'Total Students', value: totalStudents, icon: BarChart3, color: 'bg-green-500' },
     { label: 'Subjects', value: dashboard?.subjects?.length || 0, icon: BookOpen, color: 'bg-purple-500' },
-    { label: 'Research', value: researchPapers, icon: FileText, color: 'bg-orange-500' },
+    { label: 'Research', value: researchPapers, icon: FileText, color: 'bg-teal-500' },
   ];
 
   if (loading) {

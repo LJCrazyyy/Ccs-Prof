@@ -104,35 +104,35 @@ export const Login: React.FC = () => {
     return (
       <div className="min-h-screen gradient-bg flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-orange-700 font-medium">Signing in...</p>
+          <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-teal-700 font-medium">Signing in...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-orange-50 to-orange-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-white via-teal-50 to-teal-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex justify-center gap-4 mb-4">
             <img
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-rglFWmLitQbBPWPvlaUmQHDHI2YiM8.png"
               alt="University of Cabuyao"
-              className="h-16 w-16 rounded-full shadow-lg border-2 border-orange-300"
+              className="h-16 w-16 rounded-full shadow-lg border-2 border-teal-300"
             />
             <img
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-JiGNt42HwaPEYoifHlLe8u2pfYzP0m.png"
               alt="College of Computing Studies"
-              className="h-16 w-16 rounded-full shadow-lg border-2 border-orange-300"
+              className="h-16 w-16 rounded-full shadow-lg border-2 border-teal-300"
             />
           </div>
-          <h1 className="text-3xl font-bold text-orange-900 mb-2">Academic Management System</h1>
-          <p className="text-orange-700 font-medium">Pamantasan ng Cabuyao</p>
+          <h1 className="text-3xl font-bold text-teal-900 mb-2">Academic Management System</h1>
+          <p className="text-teal-700 font-medium">Pamantasan ng Cabuyao</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-2xl p-8 mb-6 border border-orange-100">
-          <h2 className="text-2xl font-bold text-orange-900 mb-6">Sign In</h2>
+        <div className="bg-white rounded-2xl shadow-2xl p-8 mb-6 border border-teal-100">
+          <h2 className="text-2xl font-bold text-teal-900 mb-6">Sign In</h2>
 
           {generalError && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex gap-3">
@@ -146,14 +146,14 @@ export const Login: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-orange-900 mb-2">Email Address</label>
+              <label className="block text-sm font-medium text-teal-900 mb-2">Email Address</label>
               <input
                 type="email"
                 value={email}
                 onChange={handleEmailChange}
                 onBlur={handleEmailBlur}
                 className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 outline-none transition ${
-                  emailError ? 'border-red-300 focus:ring-red-200 bg-red-50' : 'border-orange-200 focus:ring-orange-300 focus:border-orange-400'
+                  emailError ? 'border-red-300 focus:ring-red-200 bg-red-50' : 'border-teal-200 focus:ring-teal-300 focus:border-teal-400'
                 }`}
                 placeholder="student@example.com"
               />
@@ -165,14 +165,14 @@ export const Login: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-orange-900 mb-2">Password</label>
+              <label className="block text-sm font-medium text-teal-900 mb-2">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={handlePasswordChange}
                 onBlur={handlePasswordBlur}
                 className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 outline-none transition ${
-                  passwordError ? 'border-red-300 focus:ring-red-200 bg-red-50' : 'border-orange-200 focus:ring-orange-300 focus:border-orange-400'
+                  passwordError ? 'border-red-300 focus:ring-red-200 bg-red-50' : 'border-teal-200 focus:ring-teal-300 focus:border-teal-400'
                 }`}
                 placeholder="••••••••"
               />
@@ -186,7 +186,7 @@ export const Login: React.FC = () => {
             <button
               type="submit"
               disabled={authLoading}
-              className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold py-2.5 rounded-lg transition-colors mt-4 disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-teal-500 to-teal-500 hover:from-teal-600 hover:to-teal-600 text-white font-semibold py-2.5 rounded-lg transition-colors mt-4 disabled:opacity-50"
             >
               Sign In
             </button>

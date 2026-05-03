@@ -440,7 +440,7 @@ export const AdminEvents: React.FC = () => {
                         {e.type === 'school' && e.invitedDepartments && e.invitedDepartments.length > 0 ? (
                           <div className="flex flex-wrap gap-1">
                             {e.invitedDepartments.map((dept) => (
-                              <span key={dept} className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">
+                              <span key={dept} className="bg-teal-100 text-teal-800 text-xs px-2 py-1 rounded-full">
                                 {dept}
                               </span>
                             ))}

@@ -27,15 +27,16 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   };
 
   return (
-    <header className="bg-white shadow-md h-20 flex items-center justify-between px-6 sticky top-0 z-50">
+    <header className="sticky top-0 z-50 border-b border-white/60 bg-white/75 px-4 py-3 backdrop-blur md:px-6">
+      <div className="mx-auto flex h-14 w-full max-w-[1600px] items-center justify-between rounded-2xl border border-white/60 bg-white/80 px-3 shadow-sm md:px-5">
       <div className="flex items-center gap-4">
         {onMenuToggle && (
           <button
             onClick={onMenuToggle}
-            className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
+            className="rounded-xl p-2 text-slate-700 transition hover:bg-slate-100 md:hidden"
             aria-label="Toggle menu"
           >
-            <Menu size={24} className="text-gray-700" />
+            <Menu size={22} className="text-slate-700" />
           </button>
         )}
         <div className="flex items-center gap-3">
@@ -43,30 +44,30 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
           <img
             src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-rglFWmLitQbBPWPvlaUmQHDHI2YiM8.png"
             alt="University of Cabuyao"
-            className="h-12 w-12 rounded-full"
+            className="h-10 w-10 rounded-full border border-teal-100 shadow-sm"
           />
           {/* College Logo */}
           <img
             src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-JiGNt42HwaPEYoifHlLe8u2pfYzP0m.png"
             alt="College of Computing Studies"
-            className="h-12 w-12 rounded-full"
+            className="h-10 w-10 rounded-full border border-teal-100 shadow-sm"
           />
           <div>
-            <h1 className="text-xl font-bold text-gray-800"></h1>
-            <p className="text-xs text-gray-600">University of Cabuyao</p>
+            <h1 className="text-sm font-bold uppercase tracking-[0.18em] text-teal-800">CCS Profiling</h1>
+            <p className="text-[11px] font-medium text-slate-500">University of Cabuyao</p>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-6">
-        <div className="text-right hidden sm:block">
-          <p className="text-sm font-semibold text-gray-800">{user?.name}</p>
-          <p className="text-xs text-gray-600 capitalize">{user?.role}</p>
+      <div className="flex items-center gap-3 sm:gap-4">
+        <div className="hidden rounded-xl bg-teal-50 px-3 py-2 text-right sm:block">
+          <p className="text-sm font-semibold text-slate-800">{user?.name}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-teal-700">{user?.role}</p>
         </div>
         <button
           onClick={handleLogout}
           disabled={isLoggingOut}
-          className="flex items-center gap-2 bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg transition"
+          className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-white transition hover:bg-slate-800 disabled:bg-slate-400"
         >
           {isLoggingOut ? (
             <Loader size={18} className="animate-spin" />
@@ -75,6 +76,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
           )}
           <span className="hidden sm:inline">{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
         </button>
+      </div>
       </div>
     </header>
   );

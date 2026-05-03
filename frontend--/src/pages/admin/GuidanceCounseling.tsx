@@ -316,7 +316,7 @@ export const AdminGuidanceCounseling: React.FC = () => {
               <p className="text-sm text-gray-600">Resolved Records</p>
               <p className="text-2xl font-bold text-gray-800">{(studentRecords || []).filter((r) => r.is_resolved).length}</p>
             </div>
-            <ShieldAlert className="text-orange-600" size={24} />
+            <ShieldAlert className="text-teal-600" size={24} />
           </div>
         </div>
       </div>

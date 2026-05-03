@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Users, Shield } from 'lucide-react';
+import { ArrowRight, BookOpen, Shield, Users } from 'lucide-react';
 
 type Role = 'student' | 'faculty' | 'admin';
 
@@ -43,35 +43,44 @@ export const RoleSelection: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-orange-50 to-orange-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-orange-900 mb-2">
-            Academic Management System
-          </h1>
-          <p className="text-lg text-orange-700">
-            Select your role to access the dashboard
+    <div className="relative min-h-screen overflow-hidden bg-gradient-main px-4 py-8 md:px-6 md:py-10">
+      <div className="pointer-events-none absolute -left-20 top-20 h-60 w-60 rounded-full bg-teal-200/50 blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 bottom-8 h-72 w-72 rounded-full bg-teal-200/50 blur-3xl" />
+
+      <div className="relative mx-auto grid w-full max-w-7xl gap-8 rounded-[2rem] border border-white/60 bg-white/70 p-6 shadow-2xl shadow-slate-900/10 backdrop-blur lg:grid-cols-[1.2fr_1.8fr] lg:p-10">
+        <div className="rounded-3xl bg-teal-900 p-8 text-white">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-teal-200">Welcome</p>
+          <h1 className="text-3xl font-bold leading-tight md:text-4xl">Academic Profiling Hub</h1>
+          <p className="mt-4 max-w-md text-teal-100">
+            Choose the role you use today. Your dashboard, permissions, and shortcuts are tailored for each track.
           </p>
+          <div className="mt-8 rounded-2xl border border-teal-700 bg-teal-800/60 p-4">
+            <p className="text-sm text-teal-100">PAMANTASAN NG CABUYAO</p>
+            <p className="mt-1 text-xl font-bold">College of Computing Studies</p>
+          </div>
         </div>
 
-        {/* Role Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-slate-900 md:text-3xl">Select your portal</h2>
+            <p className="mt-1 text-sm text-slate-600">Role-based entry keeps data and actions scoped correctly.</p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
           {roles.map((role) => (
             <button
               key={role.id}
               onClick={() => setSelectedRole(role.id)}
-              className={`relative p-8 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${
+              className={`relative rounded-2xl border p-6 text-left transition-all duration-300 ${
                 selectedRole === role.id
-                  ? 'border-orange-500 bg-white shadow-2xl scale-105'
-                  : 'border-orange-200 bg-white/80 shadow-lg hover:shadow-xl hover:border-orange-400'
+                  ? 'border-primary bg-teal-50 shadow-xl shadow-teal-900/10'
+                  : 'border-slate-200 bg-white/80 shadow-sm hover:-translate-y-1 hover:border-teal-200 hover:shadow-lg'
               }`}
             >
-              {/* Selection Indicator */}
               {selectedRole === role.id && (
-                <div className="absolute top-4 right-4 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
+                <div className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-primary">
                   <svg
-                    className="w-4 h-4 text-white"
+                    className="h-4 w-4 text-white"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -84,56 +93,49 @@ export const RoleSelection: React.FC = () => {
                 </div>
               )}
 
-              {/* Icon */}
-              <div className="flex justify-center mb-6">
-                <div className={`p-4 rounded-full transition-all ${
+              <div className="mb-5 flex">
+                <div className={`rounded-2xl p-3 transition-all ${
                   selectedRole === role.id
-                    ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white'
-                    : 'bg-orange-100 text-orange-500 group-hover:bg-orange-200'
+                    ? 'bg-primary text-white'
+                    : 'bg-teal-100 text-teal-700'
                 }`}>
                   {role.icon}
                 </div>
               </div>
 
-              {/* Title */}
               <h3 className={`text-2xl font-bold mb-3 transition-colors ${
                 selectedRole === role.id
-                  ? 'text-orange-900'
-                  : 'text-gray-800'
+                  ? 'text-teal-900'
+                  : 'text-slate-800'
               }`}>
                 {role.title}
               </h3>
 
-              {/* Description */}
-              <p className={`text-sm transition-colors ${
+              <p className={`text-sm leading-relaxed transition-colors ${
                 selectedRole === role.id
-                  ? 'text-orange-700'
-                  : 'text-gray-600'
+                  ? 'text-teal-700'
+                  : 'text-slate-600'
               }`}>
                 {role.description}
               </p>
             </button>
           ))}
-        </div>
+          </div>
 
-        {/* Continue Button */}
-        <div className="flex justify-center">
+          <div className="mt-8 flex justify-end">
           <button
             onClick={handleContinue}
             disabled={!selectedRole}
-            className={`px-12 py-3 rounded-xl font-semibold text-lg transition-all duration-300 ${
+            className={`inline-flex items-center gap-2 rounded-xl px-8 py-3 text-base font-semibold transition-all duration-300 ${
               selectedRole
-                ? 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+                ? 'bg-primary text-white shadow-lg shadow-teal-900/20 hover:bg-primary-dark'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
             Continue as {selectedRole ? selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1) : 'Role'}
+            <ArrowRight size={18} />
           </button>
-        </div>
-
-        {/* Footer Info */}
-        <div className="mt-16 text-center text-orange-700 text-sm">
-          <p>Pamantasan ng Cabuyao • Academic Management System</p>
+          </div>
         </div>
       </div>
     </div>
