@@ -49,8 +49,22 @@ let useFileFallback = false;
 let hasLoggedFallback = false;
 let fallbackReason = null;
 const isProduction = String(process.env.NODE_ENV ?? '').toLowerCase() === 'production';
+const cacheTtlMs = Number.parseInt(process.env.STORE_CACHE_TTL_MS ?? '15000', 10);
+let cachedDb = null;
+let cachedAt = 0;
 
 const localDbPath = new URL('../../data/db.json', import.meta.url);
+
+const isCacheValid = () => {
+  if (!cachedDb) return false;
+  if (!Number.isFinite(cacheTtlMs) || cacheTtlMs <= 0) return false;
+  return Date.now() - cachedAt < cacheTtlMs;
+};
+
+const setCache = (db) => {
+  cachedDb = clone(db);
+  cachedAt = Date.now();
+};
 
 /* =========================
    ERROR HANDLING
@@ -158,6 +172,10 @@ const commitBatch = async (operations) => {
 ========================= */
 
 export const loadDb = async () => {
+  if (isCacheValid()) {
+    return clone(cachedDb);
+  }
+
   if (useFileFallback) return loadDbFromFile();
 
   const db = clone(defaultDb);
@@ -183,9 +201,12 @@ export const loadDb = async () => {
     useFileFallback = true;
     fallbackReason = describeFirestoreError(error);
     logFallbackOnce();
-    return loadDbFromFile();
+    const fileDb = await loadDbFromFile();
+    setCache(fileDb);
+    return fileDb;
   }
 
+  setCache(db);
   return db;
 };
 
@@ -206,6 +227,7 @@ export const withWriteLock = (operation) => {
 export const saveDb = async (db) => {
   if (useFileFallback) {
     await saveDbToFile(db);
+    setCache(db);
     return;
   }
 
@@ -241,6 +263,7 @@ export const saveDb = async (db) => {
     }
 
     await commitBatch(operations);
+    setCache(db);
   } catch (error) {
     if (!isFirestoreUnavailableError(error)) throw error;
 
@@ -252,6 +275,7 @@ export const saveDb = async (db) => {
     fallbackReason = describeFirestoreError(error);
     logFallbackOnce();
     await saveDbToFile(db);
+    setCache(db);
   }
 };
 
