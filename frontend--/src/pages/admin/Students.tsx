@@ -8,7 +8,7 @@ import { initializeApp, getApps, type FirebaseOptions } from 'firebase/app';
 import { doc, setDoc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { FormInput, SectionHeader, Card } from '../../components/ui/shared';
 import { emitSyncEvent } from '../../lib/syncEvents';
-import { apiUrl } from '../../lib/api';
+import { fetchApiWithFallback } from '../../lib/api';
 
 // Setup secondary Firebase app for student account creation
 const firebaseConfig: FirebaseOptions = {
@@ -318,7 +318,7 @@ export const AdminStudents: React.FC = () => {
       } else {
         // CREATE OPERATION
         console.log('[STUDENT] Creating new student account:', normalizedEmail);
-        const createResponse = await fetch(apiUrl('/api/auth/create-student'), {
+        const createResponse = await fetchApiWithFallback('/api/auth/create-student', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

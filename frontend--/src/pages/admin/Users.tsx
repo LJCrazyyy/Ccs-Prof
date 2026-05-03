@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserX } from 'lucide-react';
 import { Card, SectionHeader, LoadingSpinner, ErrorMessage, SuccessMessage } from '../../components/ui/shared';
-import { apiUrl } from '../../lib/api';
+import { fetchApiWithFallback } from '../../lib/api';
 
 interface User {
   id: string;
@@ -36,7 +36,7 @@ export const AdminUsers: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch(apiUrl('/api/admin/users/admins'));
+      const response = await fetchApiWithFallback('/api/admin/users/admins');
       if (!response.ok) {
         const message = await response.text();
         throw new Error(message || 'Failed to fetch admin users');
@@ -61,7 +61,7 @@ export const AdminUsers: React.FC = () => {
 
     try {
       setError(null);
-      const response = await fetch(apiUrl('/api/auth/create-admin'), {
+      const response = await fetchApiWithFallback('/api/auth/create-admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
