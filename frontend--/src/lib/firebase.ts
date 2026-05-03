@@ -19,15 +19,26 @@ const firebaseConfig: Record<string, string | undefined> = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-const missingConfigKeys = Object.entries(firebaseConfig)
-  .filter(([, value]) => !value)
-  .map(([key]) => key);
+const requiredFirebaseKeys: Array<keyof typeof firebaseConfig> = [
+  'apiKey',
+  'authDomain',
+  'projectId',
+  'storageBucket',
+  'messagingSenderId',
+  'appId',
+];
+
+const missingConfigKeys = requiredFirebaseKeys.filter((key) => !firebaseConfig[key]);
+
+const envSetupHint = import.meta.env.PROD
+  ? 'Set VITE_FIREBASE_* variables in Netlify Site settings > Environment variables, then redeploy.'
+  : 'Create a frontend--/.env.local file from frontend--/.env.example.';
 
 export const firebaseInitError = missingConfigKeys.length
   ? new Error(
       `Firebase configuration is not properly set. Missing environment variables: ${missingConfigKeys.join(
         ', '
-      )}. Create a frontend--/.env.local file from frontend--/.env.example.`
+      )}. ${envSetupHint}`
     )
   : null;
 
