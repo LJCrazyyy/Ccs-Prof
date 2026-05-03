@@ -361,12 +361,20 @@ const registerRoleFeatureRoutes = (appInstance) => {
 
 const app = express();
 const port = Number.parseInt(process.env.PORT ?? '8080', 10);
+const allowedOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://your-netlify-site.netlify.app"
-  ]
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error(`CORS blocked for origin: ${origin}`));
+  }
 }));
 app.use(express.json());
 
